@@ -39,6 +39,13 @@
   </div>
 
   <div id="agentList"></div>
+
+  <!-- Scheduled Jobs Section -->
+  <div style="margin-top:32px">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Scheduled Jobs</h2>
+    <div id="cronSummary" class="summary" style="margin-bottom:12px"></div>
+    <div id="cronList"></div>
+  </div>
 </div>
 
 <!-- Detail overlay -->
@@ -137,6 +144,55 @@ setInterval(function(){
 },15000);
 
 loadAgents();
+
+// --- Scheduled Jobs ---
+async function loadCron(){
+  try{
+    var r=await fetch(API+'/api/cron');
+    var jobs=await r.json();
+    renderCron(jobs);
+  }catch(e){
+    document.getElementById('cronList').innerHTML='<div class="empty">Failed to load scheduled jobs</div>';
+  }
+}
+
+function renderCron(jobs){
+  var active=jobs.filter(function(j){return j.status==='active'}).length;
+  var disabled=jobs.filter(function(j){return j.status==='disabled'}).length;
+  var oneshot=jobs.filter(function(j){return j.type==='one-shot'}).length;
+  var parts=[];
+  if(active)parts.push(active+' active');
+  if(disabled)parts.push(disabled+' disabled');
+  if(oneshot)parts.push(oneshot+' one-shot');
+  document.getElementById('cronSummary').textContent=parts.join(' \u00B7 ')||'No scheduled jobs';
+
+  if(!jobs.length){
+    document.getElementById('cronList').innerHTML='<div class="empty">No scheduled jobs configured</div>';
+    return;
+  }
+  document.getElementById('cronList').innerHTML=jobs.map(function(j){
+    var statusDot=j.status==='active'?'<span class="pulse-dot" style="width:6px;height:6px"></span>':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text3);margin-right:6px;opacity:.4"></span>';
+    var statusLabel=j.status==='active'?'<span class="tag running" style="font-size:10px;padding:2px 8px">Active</span>':'<span class="tag" style="font-size:10px;padding:2px 8px;background:var(--bg3);color:var(--text3)">Disabled</span>';
+    var typeLabel=j.type==='one-shot'?'<span class="tag" style="font-size:10px;padding:2px 8px;background:rgba(255,204,0,.12);color:#fc0">One-shot</span>':'';
+    var lastRunStr='';
+    if(j.lastRun){
+      var d=new Date(j.lastRun);
+      lastRunStr='Last: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      if(j.lastStatus){
+        var sc=j.lastStatus==='ok'?'color:var(--accent)':'color:var(--red)';
+        lastRunStr+=' <span style="'+sc+'">\u2022 '+j.lastStatus+'</span>';
+      }
+    }
+    var nextRunStr='';
+    if(j.nextRun){
+      var nd=new Date(j.nextRun);
+      nextRunStr='Next: '+nd.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+nd.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }
+    return '<div class="agent-card"><div class="agent-header"><span class="agent-label">'+esc(j.name)+'</span><div>'+statusLabel+typeLabel+'</div></div><div class="agent-task" style="font-size:13px;font-weight:500;color:var(--text2)">'+(j.scheduleDesc||j.schedule)+'</div><div class="agent-time">'+lastRunStr+(lastRunStr&&nextRunStr?' \u00B7 ':'')+nextRunStr+'</div></div>';
+  }).join('');
+}
+
+loadCron();
 </script>
 </body>
 </html>
