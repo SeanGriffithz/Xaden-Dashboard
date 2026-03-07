@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Command Centre</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00D632">
+<script>(function(){var t=localStorage.getItem('theme')||localStorage.getItem('cc_theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div id="greeting" style="font-size:14px;color:var(--text2);font-weight:500;margin-bottom:2px"></div>
+      <h1 style="margin:0">Command <span>Centre</span></h1>
+    </div>
+    <div class="header-actions">
+      <div class="search-global-wrap">
+        <input class="search-global" id="globalSearch" type="text" placeholder="Search..." autocomplete="off">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">&#x25D0;</button>
+    </div>
+  </header>
+
+  <!-- Page Nav -->
+  <div class="tabs" style="margin-bottom:12px">
+    <button class="tab" data-page="index.html" onclick="window.location.href='index.html'">Tasks</button>
+    <button class="tab" data-page="documents.html" onclick="window.location.href='documents.html'">Docs</button>
+    <button class="tab" data-page="agents.html" onclick="window.location.href='agents.html'">Agents</button>
+    <button class="tab" data-page="history.html" onclick="window.location.href='history.html'">History</button>
+  </div>
+
+  <!-- Overview Stats -->
+  <div class="overview-stats" id="overviewStats"></div>
+
+  <!-- Task Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Tasks</div>
+      <button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ Add Task</button>
+    </div>
+    <div class="tabs" id="assigneeTabs">
+      <button class="tab active" data-assignee="all" onclick="setAssignee('all',this)">All</button>
+      <button class="tab" data-assignee="Sean" onclick="setAssignee('Sean',this)">Sean</button>
+      <button class="tab" data-assignee="Xaden" onclick="setAssignee('Xaden',this)">Xaden</button>
+    </div>
+    <div class="filters">
+      <select class="filter-select" id="filterStatus" onchange="renderTasks()">
+        <option value="">All Statuses</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Done">Done</option>
+      </select>
+      <select class="filter-select" id="filterPriority" onchange="renderTasks()">
+        <option value="">All Priorities</option>
+        <option value="High">High</option>
+        <option value="Med">Med</option>
+        <option value="Low">Low</option>
+      </select>
+      <select class="filter-select" id="filterCategory" onchange="renderTasks()">
+        <option value="">All Categories</option>
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Family">Family</option>
+        <option value="Health">Health</option>
+      </select>
+    </div>
+    <div id="taskList"></div>
+  </div>
+
+  <!-- Events Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Events</div>
+      <button class="btn btn-primary btn-sm" onclick="openEventModal()">+ Add Event</button>
+    </div>
+    <div id="eventList"></div>
+  </div>
+
+  <!-- Export -->
+  <div class="export-bar">
+    <button class="btn btn-secondary btn-sm" onclick="exportCSV('tasks')">Export Tasks CSV</button>
+    <button class="btn btn-secondary btn-sm" onclick="exportCSV('events')">Export Events CSV</button>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h2 id="taskModalTitle">Add Task</h2>
+    <input type="hidden" id="taskEditId">
+    <div class="form-group">
+      <label>Task Name</label>
+      <input type="text" id="taskName" placeholder="What needs to be done?">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Assigned To</label>
+        <select id="taskAssignee"><option>Sean</option><option>Xaden</option></select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="taskStatus"><option>Not Started</option><option>In Progress</option><option>Done</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="taskPriority"><option>High</option><option>Med</option><option>Low</option></select>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="taskDue">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="taskCategory"><option>Work</option><option>Personal</option><option>Family</option><option>Health</option></select>
+      </div>
+      <div class="form-group">
+        <label>Recurring</label>
+        <select id="taskRecurring"><option>None</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="taskNotes" placeholder="Optional notes..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('taskModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveTask()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <h2 id="eventModalTitle">Add Event</h2>
+    <input type="hidden" id="eventEditId">
+    <div class="form-group">
+      <label>Event Name</label>
+      <input type="text" id="eventName" placeholder="Event name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="eventDate">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="eventCategory"><option>Birthday</option><option>Anniversary</option><option>Meeting</option><option>Deadline</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('eventModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEvent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+// State
+var tasks = JSON.parse(localStorage.getItem('cc_tasks')||'[]');
+var events = JSON.parse(localStorage.getItem('cc_events')||'[]');
+var currentAssignee = 'all';
+
+// Init
+updateGreeting('greeting');
+
+// Tabs
+function setAssignee(a,el){
+  currentAssignee=a;
+  document.querySelectorAll('#assigneeTabs .tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  renderTasks();
+}
+
+// Overview Stats
+function renderOverview(){
+  var today=new Date().toISOString().slice(0,10);
+  var active=tasks.filter(function(t){return t.status!=='Done'});
+  var high=active.filter(function(t){return t.priority==='High'});
+  var overdue=active.filter(function(t){return t.due&&t.due<today});
+  var done=tasks.filter(function(t){return t.status==='Done'});
+  document.getElementById('overviewStats').innerHTML=
+    '<div class="stat-card"><div class="stat-value">'+active.length+'</div><div class="stat-label">Active</div></div>'+
+    '<div class="stat-card stat-amber"><div class="stat-value">'+high.length+'</div><div class="stat-label">High Priority</div></div>'+
+    '<div class="stat-card stat-red"><div class="stat-value">'+overdue.length+'</div><div class="stat-label">Overdue</div></div>'+
+    '<div class="stat-card stat-green"><div class="stat-value">'+done.length+'</div><div class="stat-label">Completed</div></div>';
+}
+
+// Due date helpers
+function getDueDateInfo(due){
+  if(!due)return{cls:'',badge:''};
+  var today=new Date();today.setHours(0,0,0,0);
+  var d=new Date(due+'T00:00:00');d.setHours(0,0,0,0);
+  var diff=Math.floor((d-today)/(1000*60*60*24));
+  if(diff<0)return{cls:'card-overdue',badge:'<span class="badge badge-overdue"><span class="pulse-dot pulse-dot-red"></span>Overdue</span>'};
+  if(diff===0)return{cls:'',badge:'<span class="badge badge-due-today">Due today</span>'};
+  if(diff<=3)return{cls:'card-due-soon',badge:''};
+  return{cls:'',badge:''};
+}
+
+// Render Tasks
+function renderTasks(){
+  var list=document.getElementById('taskList');
+  var fs=document.getElementById('filterStatus').value;
+  var fp=document.getElementById('filterPriority').value;
+  var fc=document.getElementById('filterCategory').value;
+  var filtered=tasks.filter(function(t){
+    if(currentAssignee!=='all'&&t.assignee!==currentAssignee)return false;
+    if(fs&&t.status!==fs)return false;
+    if(fp&&t.priority!==fp)return false;
+    if(fc&&t.category!==fc)return false;
+    return true;
+  });
+  if(!filtered.length){list.innerHTML='<div class="empty">No tasks yet</div>';renderOverview();return;}
+  list.innerHTML=filtered.map(function(t){
+    var pc=t.priority==='High'?'red':t.priority==='Med'?'amber':'green';
+    var done=t.status==='Done'?'task-done':'';
+    var due=t.due?'<span class="task-due">Due '+new Date(t.due+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</span>':'';
+    var rec=t.recurring&&t.recurring!=='None'?'<span class="badge badge-status">&#x21BB; '+t.recurring+'</span>':'';
+    var notes=t.notes?'<div class="task-notes">'+esc(t.notes)+'</div>':'';
+    var dueInfo=t.status!=='Done'?getDueDateInfo(t.due):{cls:'',badge:''};
+    return '<div class="card '+done+' '+dueInfo.cls+'"><div class="task-header"><div><div class="task-name">'+esc(t.name)+'</div><div class="task-meta"><span class="badge badge-'+pc+'">'+t.priority+'</span><span class="badge badge-status">'+t.status+'</span><span class="badge badge-cat">'+t.category+'</span>'+dueInfo.badge+rec+'<span class="task-assignee">'+t.assignee+'</span>'+due+'</div>'+notes+'</div><div class="task-actions"><button class="btn-icon" onclick="editTask(\''+t.id+'\')" title="Edit">&#x270E;</button><button class="btn-icon btn-danger" onclick="deleteTask(\''+t.id+'\')" title="Delete">&#x2715;</button></div></div></div>';
+  }).join('');
+  renderOverview();
+}
+
+// Render Events
+function renderEvents(){
+  var list=document.getElementById('eventList');
+  var sorted=[].concat(events).sort(function(a,b){return a.date.localeCompare(b.date)});
+  if(!sorted.length){list.innerHTML='<div class="empty">No events yet</div>';return;}
+  list.innerHTML=sorted.map(function(e){
+    var d=new Date(e.date+'T00:00:00');
+    var mon=d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase();
+    var day=d.getDate();
+    return '<div class="card"><div class="event-card"><div class="event-date-box"><div class="month">'+mon+'</div><div class="day">'+day+'</div></div><div class="event-info"><div class="event-name">'+esc(e.name)+'</div><div class="event-cat">'+e.category+'</div></div><label class="reminder-toggle" title="Reminder"><input type="checkbox" '+(e.reminder?'checked':'')+' onchange="toggleReminder(\''+e.id+'\',this.checked)"><span class="slider"></span></label><div class="task-actions"><button class="btn-icon" onclick="editEvent(\''+e.id+'\')" title="Edit">&#x270E;</button><button class="btn-icon btn-danger" onclick="deleteEvent(\''+e.id+'\')" title="Delete">&#x2715;</button></div></div></div>';
+  }).join('');
+}
+
+// Modal
+function openTaskModal(id){
+  document.getElementById('taskModalTitle').textContent=id?'Edit Task':'Add Task';
+  document.getElementById('taskEditId').value=id||'';
+  if(id){var t=tasks.find(function(x){return x.id===id});if(t){document.getElementById('taskName').value=t.name;document.getElementById('taskAssignee').value=t.assignee;document.getElementById('taskStatus').value=t.status;document.getElementById('taskPriority').value=t.priority;document.getElementById('taskDue').value=t.due||'';document.getElementById('taskCategory').value=t.category;document.getElementById('taskRecurring').value=t.recurring||'None';document.getElementById('taskNotes').value=t.notes||'';}}
+  else{document.getElementById('taskName').value='';document.getElementById('taskDue').value='';document.getElementById('taskNotes').value='';document.getElementById('taskStatus').value='Not Started';document.getElementById('taskPriority').value='Med';document.getElementById('taskRecurring').value='None';}
+  document.getElementById('taskModal').classList.add('open');
+}
+function openEventModal(id){
+  document.getElementById('eventModalTitle').textContent=id?'Edit Event':'Add Event';
+  document.getElementById('eventEditId').value=id||'';
+  if(id){var e=events.find(function(x){return x.id===id});if(e){document.getElementById('eventName').value=e.name;document.getElementById('eventDate').value=e.date;document.getElementById('eventCategory').value=e.category;}}
+  else{document.getElementById('eventName').value='';document.getElementById('eventDate').value='';document.getElementById('eventCategory').value='Birthday';}
+  document.getElementById('eventModal').classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// Save
+function saveTask(){
+  var name=document.getElementById('taskName').value.trim();
+  if(!name)return;
+  var id=document.getElementById('taskEditId').value||crypto.randomUUID();
+  var task={id:id,name:name,assignee:document.getElementById('taskAssignee').value,status:document.getElementById('taskStatus').value,priority:document.getElementById('taskPriority').value,due:document.getElementById('taskDue').value,category:document.getElementById('taskCategory').value,recurring:document.getElementById('taskRecurring').value,notes:document.getElementById('taskNotes').value.trim()};
+  var idx=tasks.findIndex(function(t){return t.id===id});
+  if(idx>=0){tasks[idx]=task;showToast('Task updated','success');}else{tasks.push(task);showToast('Task added','success');}
+  persist();closeModal('taskModal');renderTasks();
+}
+function saveEvent(){
+  var name=document.getElementById('eventName').value.trim();
+  var date=document.getElementById('eventDate').value;
+  if(!name||!date)return;
+  var id=document.getElementById('eventEditId').value||crypto.randomUUID();
+  var existing=events.find(function(x){return x.id===id});
+  var ev={id:id,name:name,date:date,category:document.getElementById('eventCategory').value,reminder:existing?existing.reminder:false};
+  var idx=events.findIndex(function(e){return e.id===id});
+  if(idx>=0){events[idx]=ev;showToast('Event updated','success');}else{events.push(ev);showToast('Event added','success');}
+  persist();closeModal('eventModal');renderEvents();
+}
+
+// Actions
+function editTask(id){openTaskModal(id);}
+function deleteTask(id){if(confirm('Delete this task?')){tasks=tasks.filter(function(t){return t.id!==id});persist();renderTasks();showToast('Task deleted','info');}}
+function editEvent(id){openEventModal(id);}
+function deleteEvent(id){if(confirm('Delete this event?')){events=events.filter(function(e){return e.id!==id});persist();renderEvents();showToast('Event deleted','info');}}
+function toggleReminder(id,val){var e=events.find(function(x){return x.id===id});if(e){e.reminder=val;persist();}}
+
+// Persist
+function persist(){localStorage.setItem('cc_tasks',JSON.stringify(tasks));localStorage.setItem('cc_events',JSON.stringify(events));}
+
+// Export
+function exportCSV(type){
+  var csv,fn;
+  if(type==='tasks'){
+    csv='Name,Assignee,Status,Priority,Due,Category,Recurring,Notes\n'+tasks.map(function(t){return [t.name,t.assignee,t.status,t.priority,t.due,t.category,t.recurring,t.notes].map(function(v){return '"'+(v||'').replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+    fn='tasks.csv';
+  }else{
+    csv='Name,Date,Category,Reminder\n'+events.map(function(e){return [e.name,e.date,e.category,e.reminder?'Yes':'No'].map(function(v){return '"'+(v||'').replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+    fn='events.csv';
+  }
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=fn;a.click();
+}
+
+// Global Search
+var searchTimer;
+document.getElementById('globalSearch').addEventListener('input',function(){
+  var q=this.value.trim();
+  clearTimeout(searchTimer);
+  if(!q){document.getElementById('searchResults').classList.remove('open');return;}
+  searchTimer=setTimeout(function(){doGlobalSearch(q)},300);
+});
+document.getElementById('globalSearch').addEventListener('blur',function(){
+  setTimeout(function(){document.getElementById('searchResults').classList.remove('open')},200);
+});
+
+function doGlobalSearch(q){
+  fetch(API+'/api/search?q='+encodeURIComponent(q))
+    .then(function(r){return r.json()})
+    .then(function(data){
+      var html='';
+      var groups=[
+        {key:'tasks',label:'Tasks',icon:'&#x2611;',page:'index.html'},
+        {key:'documents',label:'Documents',icon:'&#x2261;',page:'documents.html'},
+        {key:'agents',label:'Agents',icon:'&#x2699;',page:'agents.html'},
+        {key:'history',label:'History',icon:'&#x25F7;',page:'history.html'}
+      ];
+      var hasResults=false;
+      groups.forEach(function(g){
+        if(data[g.key]&&data[g.key].length){
+          hasResults=true;
+          html+='<div class="search-group-title">'+g.label+'</div>';
+          data[g.key].forEach(function(item){
+            var text=item.title||item.label||item.task||'';
+            html+='<div class="search-item" onclick="window.location.href=\''+g.page+'\'"><span class="search-item-icon">'+g.icon+'</span><span class="search-item-text">'+esc(text)+'</span></div>';
+          });
+        }
+      });
+      if(!hasResults)html='<div class="search-no-results">No results found</div>';
+      var el=document.getElementById('searchResults');
+      el.innerHTML=html;
+      el.classList.add('open');
+    })
+    .catch(function(){});
+}
+
+// Init
+renderTasks();
+renderEvents();
+renderOverview();
+</script>
+</body>
+</html>

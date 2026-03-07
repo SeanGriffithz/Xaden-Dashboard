@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swansea Office Workflow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;background:#000;color:#fff;padding:20px;-webkit-font-smoothing:antialiased}
+h1{text-align:center;font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-.5px}
+.subtitle{text-align:center;font-size:13px;color:#888;margin-bottom:32px}
+.flow{display:flex;flex-direction:column;align-items:center;gap:0;max-width:700px;margin:0 auto}
+
+.node{border-radius:16px;padding:16px 20px;text-align:center;font-size:14px;line-height:1.5;width:100%;max-width:520px;position:relative}
+.node b{display:block;font-size:13px;margin-bottom:4px}
+.start{background:#1a1a2e;border:2px solid #00D632;color:#fff}
+.process{background:#111;border:1px solid #333;color:#fff}
+.decision{background:#111;border:2px solid #ff9500;color:#fff;border-radius:16px}
+.action-green{background:#0a2e10;border:1px solid #00D632;color:#66d96e}
+.action-red{background:#2e0a0a;border:1px solid #ff3b30;color:#ff6b6b}
+.action-purple{background:#1a0a2e;border:1px solid #9b59b6;color:#bb8fce}
+.action-blue{background:#0a1a3e;border:1px solid #3498db;color:#6da8ff}
+.end{background:#1a1a2e;border:2px solid #00D632;color:#00D632;font-weight:700}
+.anyone{background:#1a1a1a;border:2px dashed #ff9500;color:#ffb74d}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin-bottom:6px;margin-right:2px}
+.tag-wayne{background:#2a1a00;color:#ff9500}
+.tag-zoe{background:#2a1a00;color:#ff9500}
+.tag-gareth{background:#001a2a;color:#3498db}
+.tag-tobias{background:#0a2a1a;color:#2ecc71}
+.tag-anyone{background:#2a0a00;color:#ff6b6b}
+
+.arrow{display:flex;flex-direction:column;align-items:center;padding:4px 0}
+.arrow-line{width:2px;height:24px;background:#333}
+.arrow-head{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #333}
+.arrow-label{font-size:11px;color:#888;font-weight:600;margin-top:2px;margin-bottom:2px}
+
+.branch{display:flex;gap:16px;width:100%;max-width:600px;justify-content:center}
+.branch-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.branch-connector{display:flex;align-items:flex-start;justify-content:center;width:100%;max-width:600px;position:relative;height:40px}
+.branch-connector::before{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:#333}
+.branch-left,.branch-right{position:absolute;top:0;width:2px;height:40px;background:#333}
+.branch-left{left:25%}
+.branch-right{right:25%}
+.branch-left-head,.branch-right-head{position:absolute;bottom:0;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #333}
+.branch-left-head{left:calc(25% - 5px)}
+.branch-right-head{right:calc(25% - 5px)}
+
+.merge-connector{display:flex;align-items:flex-end;justify-content:center;width:100%;max-width:600px;position:relative;height:40px}
+.merge-connector::before{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:#333}
+.merge-left,.merge-right{position:absolute;bottom:0;width:2px;height:40px;background:#333}
+.merge-left{left:25%}
+.merge-right{right:25%}
+.merge-down{position:absolute;bottom:-24px;width:2px;height:24px;background:#333;left:50%;transform:translateX(-50%)}
+.merge-down-head{position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #333}
+
+.section{width:100%;max-width:600px;text-align:center;padding:12px 0;margin:8px 0}
+.section span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#555;background:#000;padding:0 12px}
+.section-line{width:100%;height:1px;background:#222;margin-top:-7px}
+
+.key{max-width:600px;margin:40px auto 0;background:#111;border:1px solid #222;border-radius:16px;padding:20px}
+.key h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#888}
+.key-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.key-swatch{width:24px;height:14px;border-radius:4px}
+.swatch-red{background:#ff3b30}
+.swatch-purple{background:#9b59b6}
+.swatch-green{background:#00D632}
+.swatch-blue{background:#3498db}
+
+.people{max-width:600px;margin:16px auto 0;background:#111;border:1px solid #222;border-radius:16px;padding:20px}
+.people h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#888}
+.people-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+
+@media print{body{background:#fff;color:#000}.node{border-color:#333}.section span{background:#fff}}
+</style>
+</head>
+<body>
+<h1>Swansea Office Workflow</h1>
+<p class="subtitle">Core Highway — Job Lifecycle</p>
+
+<div class="flow">
+
+  <!-- PHASE 1: Job Creation -->
+  <div class="section"><div class="section-line"></div><span>Phase 1 — Job Creation</span></div>
+
+  <div class="node start">
+    <span class="tag tag-wayne">WAYNE</span> <span class="tag tag-zoe">ZOE</span>
+    <b>1. Raise Job on Re-flow</b>
+    Book job into the diary for initial capture
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node process">
+    <span class="tag tag-wayne">WAYNE</span> <span class="tag tag-zoe">ZOE</span>
+    <b>2. Arrange CAD Plans & Applications</b>
+    Submit any required CAD plans and applications
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node decision">
+    <b>3. CAD Plan Status?</b>
+  </div>
+
+  <div class="branch-connector">
+    <div class="branch-left"></div>
+    <div class="branch-right"></div>
+    <div class="branch-left-head"></div>
+    <div class="branch-right-head"></div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="arrow-label">⏳ Pending</div>
+      <div class="node action-purple" style="font-size:13px">
+        Mark <b>"Pending"</b> in the CAD Plan column in the diary
+      </div>
+    </div>
+    <div class="branch-item">
+      <div class="arrow-label">✅ Approved</div>
+      <div class="node action-green" style="font-size:13px">
+        Input the <b>CAD link</b> into the diary
+      </div>
+    </div>
+  </div>
+
+  <div class="merge-connector">
+    <div class="merge-left"></div>
+    <div class="merge-right"></div>
+    <div class="merge-down"></div>
+    <div class="merge-down-head"></div>
+  </div>
+
+  <div style="height:40px"></div>
+
+  <!-- PHASE 2: Resourcing -->
+  <div class="section"><div class="section-line"></div><span>Phase 2 — Resourcing</span></div>
+
+  <div class="node process">
+    <span class="tag tag-tobias">TOBIAS</span>
+    <b>4. Assign Resources</b>
+    Add operative name(s) and vehicle(s) to jobs in the diary.<br>
+    Once fully resourced, allocate to the operative(s).<br>
+    Highlight the <b>cell with names GREEN</b> to confirm resourced.
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node action-blue">
+    <span class="tag tag-tobias">TOBIAS</span>
+    <b>5. Text Job to Operative(s)</b>
+    Once job has been texted over to the operative(s),<br>
+    highlight the <b>time cell BLUE</b> in the diary to confirm.
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node process">
+    <span class="tag tag-tobias">TOBIAS</span> <span class="tag tag-gareth">GARETH</span>
+    <b>6. Check Plant & Equipment</b>
+    Speak to yard staff — do we have enough:<br>
+    Traffic signals, signs, sequential lamps, etc.?
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <!-- PHASE 3: On the Road -->
+  <div class="section"><div class="section-line"></div><span>Phase 3 — On the Road</span></div>
+
+  <div class="node process">
+    <span class="tag tag-gareth">GARETH</span>
+    <b>7. Check Paperwork</b>
+    Verify complete compliance once job is on the road
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node decision">
+    <b>8. Job Status?</b>
+  </div>
+
+  <div class="branch-connector">
+    <div class="branch-left"></div>
+    <div class="branch-right"></div>
+    <div class="branch-left-head"></div>
+    <div class="branch-right-head"></div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="arrow-label">❌ Cancelled</div>
+      <div class="node action-red" style="font-size:13px">
+        Highlight booking <b>text RED</b> in the diary
+      </div>
+    </div>
+    <div class="branch-item">
+      <div class="arrow-label">✅ Active</div>
+      <div class="node action-green" style="font-size:13px">
+        Job continues — monitor for changes
+      </div>
+    </div>
+  </div>
+
+  <div class="merge-connector">
+    <div class="merge-left"></div>
+    <div class="merge-right"></div>
+    <div class="merge-down"></div>
+    <div class="merge-down-head"></div>
+  </div>
+
+  <div style="height:40px"></div>
+
+  <div class="node anyone">
+    <span class="tag tag-anyone">ANYONE</span>
+    <b>9. Changes While On the Road</b>
+    If ANYTHING changes (manual control, maintenance, operative on site, job extended, etc.):<br>
+    → Update the diary<br>
+    → Raise the event on Re-flow
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <!-- PHASE 4: Costing -->
+  <div class="section"><div class="section-line"></div><span>Phase 4 — Costing & BoQ</span></div>
+
+  <div class="node decision">
+    <b>10. Can You Update the BoQ?</b>
+  </div>
+
+  <div class="branch-connector">
+    <div class="branch-left"></div>
+    <div class="branch-right"></div>
+    <div class="branch-left-head"></div>
+    <div class="branch-right-head"></div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="arrow-label">❓ Unsure of costs</div>
+      <div class="node action-purple" style="font-size:13px">
+        Highlight <b>job number cell PURPLE</b> in diary to flag for invoicing review
+      </div>
+    </div>
+    <div class="branch-item">
+      <div class="arrow-label">✅ Yes</div>
+      <div class="node action-green" style="font-size:13px">
+        Update the <b>BoQ</b> with costs
+      </div>
+    </div>
+  </div>
+
+  <div class="merge-connector">
+    <div class="merge-left"></div>
+    <div class="merge-right"></div>
+    <div class="merge-down"></div>
+    <div class="merge-down-head"></div>
+  </div>
+
+  <div style="height:40px"></div>
+
+  <!-- PHASE 5: Invoicing -->
+  <div class="section"><div class="section-line"></div><span>Phase 5 — Invoicing & Close-out</span></div>
+
+  <div class="node process">
+    <b>11. Cross-Reference BoQ to Diary</b>
+    Double-check everything has been costed.<br>
+    Ensure diary entries match the BoQ.
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node action-green">
+    <b>12. Mark as Checked</b>
+    Highlight <b>job number cell GREEN</b> in the diary to confirm BoQ matches diary activity
+  </div>
+
+  <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+  <div class="node decision">
+    <b>13. Tag Job Status</b>
+  </div>
+
+  <div class="branch-connector">
+    <div class="branch-left"></div>
+    <div class="branch-right"></div>
+    <div class="branch-left-head"></div>
+    <div class="branch-right-head"></div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-item">
+      <div class="arrow-label">🚧 Still on road</div>
+      <div class="node action-blue" style="font-size:13px">
+        Tag as <b>Active</b>
+      </div>
+    </div>
+    <div class="branch-item">
+      <div class="arrow-label">✅ Completed</div>
+      <div class="node end" style="font-size:13px">
+        Tag as <b>Ready For Invoicing</b>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- People Key -->
+<div class="people">
+  <h3>👥 Responsibilities</h3>
+  <div class="people-item"><span class="tag tag-wayne">WAYNE</span> <span class="tag tag-zoe">ZOE</span> <span>— Job creation, CAD plans, applications</span></div>
+  <div class="people-item"><span class="tag tag-tobias">TOBIAS</span> <span>— Resourcing (names, vehicles, allocation)</span></div>
+  <div class="people-item"><span class="tag tag-tobias">TOBIAS</span> <span class="tag tag-gareth">GARETH</span> <span>— Plant & equipment checks</span></div>
+  <div class="people-item"><span class="tag tag-gareth">GARETH</span> <span>— Compliance checks on the road</span></div>
+  <div class="people-item"><span class="tag tag-anyone">ANYONE</span> <span>— Changes while job is live → diary + Re-flow</span></div>
+</div>
+
+<!-- Colour Key -->
+<div class="key">
+  <h3>🎨 Diary Colour Key</h3>
+  <div class="key-item"><div class="key-swatch swatch-green"></div><span><b>Green names cell</b> — Job fully resourced (names & vehicles allocated)</span></div>
+  <div class="key-item"><div class="key-swatch swatch-blue"></div><span><b>Blue time cell</b> — Job texted to operative(s) ✓</span></div>
+  <div class="key-item"><div class="key-swatch swatch-red"></div><span><b>Red booking text</b> — Job cancelled</span></div>
+  <div class="key-item"><div class="key-swatch swatch-purple"></div><span><b>Purple job number cell</b> — Costs unsure, needs review at invoicing</span></div>
+  <div class="key-item"><div class="key-swatch swatch-green"></div><span><b>Green job number cell</b> — BoQ checked and matches diary ✓</span></div>
+</div>
+
+</body>
+</html>

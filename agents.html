@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Agents</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00D632">
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div id="greeting" style="font-size:14px;color:var(--text2);font-weight:500;margin-bottom:2px"></div>
+      <h1 style="margin:0">Agents</h1>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="loadAgents()" title="Refresh">&#x21BB;</button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">&#x25D0;</button>
+    </div>
+  </header>
+
+  <div class="tabs" style="margin-bottom:12px">
+    <button class="tab" data-page="index.html" onclick="window.location.href='index.html'">Tasks</button>
+    <button class="tab" data-page="documents.html" onclick="window.location.href='documents.html'">Docs</button>
+    <button class="tab" data-page="agents.html" onclick="window.location.href='agents.html'">Agents</button>
+    <button class="tab" data-page="history.html" onclick="window.location.href='history.html'">History</button>
+  </div>
+
+  <div id="summary" class="summary"></div>
+
+  <div class="filters" id="statusFilters">
+    <button class="fpill active" data-status="">All</button>
+    <button class="fpill" data-status="running">Running</button>
+    <button class="fpill" data-status="completed">Completed</button>
+    <button class="fpill" data-status="failed">Failed</button>
+  </div>
+
+  <div id="agentList"></div>
+</div>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<script src="common.js"></script>
+<script>
+var agents=[];
+var statusFilter='';
+
+// Init
+updateGreeting('greeting');
+
+document.getElementById('statusFilters').addEventListener('click',function(e){
+  var btn=e.target.closest('.fpill');if(!btn)return;
+  document.querySelectorAll('#statusFilters .fpill').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  statusFilter=btn.dataset.status;
+  renderAgents();
+});
+
+async function loadAgents(){
+  try{
+    var r=await fetch(API+'/api/agents');
+    agents=await r.json();
+    renderAgents();
+  }catch(e){
+    document.getElementById('agentList').innerHTML='<div class="empty">Failed to load agents</div>';
+  }
+}
+
+function renderAgents(){
+  var filtered=statusFilter?agents.filter(function(a){return a.status===statusFilter}):agents;
+  var running=agents.filter(function(a){return a.status==='running'}).length;
+  var completed=agents.filter(function(a){return a.status==='completed'}).length;
+  var failed=agents.filter(function(a){return a.status==='failed'}).length;
+  var parts=[];
+  if(running)parts.push(running+' running');
+  if(completed)parts.push(completed+' completed');
+  if(failed)parts.push(failed+' failed');
+  document.getElementById('summary').textContent=parts.join(' \u00B7 ')||'No agents deployed yet';
+
+  if(!filtered.length){
+    document.getElementById('agentList').innerHTML='<div class="empty">'+(statusFilter?'No '+statusFilter+' agents':'No agents deployed yet')+'</div>';
+    return;
+  }
+  document.getElementById('agentList').innerHTML=filtered.map(function(a){
+    var statusTag=a.status==='running'?'<span class="tag running"><span class="pulse-dot"></span>Running</span>':a.status==='completed'?'<span class="tag completed">Completed</span>':'<span class="tag failed">Failed</span>';
+    var timeStr='';
+    if(a.startedAt){
+      var d=new Date(a.startedAt);
+      timeStr=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }
+    var durStr=a.duration?' \u00B7 '+a.duration:'';
+    return '<div class="agent-card" onclick="openDetail('+a.id+')" style="cursor:pointer"><div class="agent-header"><span class="agent-label">'+(a.label||'Agent #'+a.id)+'</span>'+statusTag+'</div><div class="agent-task">'+esc(a.task)+'</div><div class="agent-time">'+timeStr+durStr+'</div></div>';
+  }).join('');
+}
+
+function openDetail(id){
+  var a=agents.find(function(x){return x.id===id});if(!a)return;
+  var statusTag=a.status==='running'?'<span class="tag running"><span class="pulse-dot"></span>Running</span>':a.status==='completed'?'<span class="tag completed">Completed</span>':'<span class="tag failed">Failed</span>';
+  var timeStr='';
+  if(a.startedAt){
+    var d=new Date(a.startedAt);
+    timeStr=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }
+  var html='<div class="detail-top"><h2>'+(a.label||'Agent #'+a.id)+'</h2><button class="detail-x" onclick="closeDetail()">&#x2715;</button></div>';
+  html+='<div class="detail-tags">'+statusTag+(a.duration?'<span class="tag">'+a.duration+'</span>':'')+'</div>';
+  html+='<div class="detail-task">'+esc(a.task)+'</div>';
+  if(a.steps){
+    var stepLines=a.steps.split('\n').filter(function(s){return s.trim()});
+    html+='<div class="detail-section"><div class="detail-section-title">Steps taken</div>';
+    html+=stepLines.map(function(s,i){
+      var text=s.replace(/^\d+\.\s*/,'');
+      return '<div class="step-item"><div class="step-num">'+(i+1)+'</div><div class="step-text">'+esc(text)+'</div></div>';
+    }).join('');
+    html+='</div>';
+  }
+  if(a.result){
+    html+='<div class="detail-result"><div class="detail-section-title">Result</div><div class="detail-result-box">'+esc(a.result)+'</div></div>';
+  }
+  if(a.outputUrl){
+    html+='<div class="detail-output"><div class="detail-section-title">Output</div><a href="'+esc(a.outputUrl)+'" target="_blank">\u2197 View output</a></div>';
+  }
+  html+='<div class="detail-time">Started '+timeStr+(a.completedAt?' \u00B7 Completed '+new Date(a.completedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'')+'</div>';
+  document.getElementById('detailCard').innerHTML=html;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open')}
+
+// Auto-refresh every 15s for running agents
+setInterval(function(){
+  if(agents.some(function(a){return a.status==='running'}))loadAgents();
+},15000);
+
+loadAgents();
+</script>
+</body>
+</html>

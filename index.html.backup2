@@ -1,28 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Command Centre</title>
-<script>
-// Prevent white flash — apply theme before render
-(function(){
-  var t=localStorage.getItem('theme');
-  if(t==='light'){document.documentElement.classList.remove('dark')}
-  else if(t==='dark'||!t){document.documentElement.classList.add('dark')}
-  else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark')}
-})();
-</script>
+<title>Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#fff;--bg2:#f5f5f5;--bg3:#e8e8e8;--text:#000;--text2:#666;--text3:#999;--border:#e0e0e0;--card:#fff;--shadow:0 1px 3px rgba(0,0,0,.08);--accent:#00D632;--accent2:#00b82b;--red:#ff3b30;--amber:#ff9500;--green:#00D632;--radius:16px;--modal-bg:rgba(0,0,0,.4)}
-.dark{--bg:#050505;--bg2:#161616;--bg3:#252525;--text:#e8e8e8;--text2:#888;--text3:#555;--border:#2a2a2a;--card:#1c1c1e;--shadow:0 1px 3px rgba(255,255,255,.03);--modal-bg:rgba(0,0,0,.7)}
+.dark{--bg:#000;--bg2:#111;--bg3:#222;--text:#fff;--text2:#aaa;--text3:#666;--border:#222;--card:#111;--shadow:0 1px 3px rgba(255,255,255,.03);--modal-bg:rgba(0,0,0,.7)}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;min-height:100vh;-webkit-font-smoothing:antialiased}
-.dark body{background:linear-gradient(180deg, #111 0%, #0a0a0a 30%, #050505 100%);min-height:100vh}
 .container{max-width:800px;margin:0 auto;padding:16px}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;gap:12px}
 header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
-.summary-bar{font-size:13px;color:var(--text2);margin-bottom:16px}
 .header-actions{display:flex;align-items:center;gap:12px}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--red);transition:background .3s;flex-shrink:0}
 .conn-dot.ok{background:var(--green)}
@@ -30,36 +19,20 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 .icon-btn:hover{background:var(--bg2)}
 .icon-btn:active{transform:scale(.95)}
 
-/* Page Nav Tabs */
-.page-tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:12px}
-.dark .page-tabs{background:rgba(255,255,255,.06)}
-.page-tab{flex:1;padding:10px 8px;border:none;background:none;border-radius:10px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;position:relative;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center}
-.page-tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
-
-/* Task Tabs */
+/* Tabs */
 .tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:16px}
-.dark .tabs{background:rgba(255,255,255,.06)}
 .tab{flex:1;padding:10px 8px;border:none;background:none;border-radius:10px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;position:relative;text-align:center}
 .tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
 .badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;vertical-align:middle}
 
-/* Pill Filters */
-.filters{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:center;flex-wrap:wrap}.filters::-webkit-scrollbar{display:none}
-.filter-pill{padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;white-space:nowrap;font-weight:600;user-select:none}
-.filter-pill:hover{border-color:var(--accent)}
-.filter-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.dark .filter-pill{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
-.dark .filter-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.filter-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
-.dark .filter-divider{background:rgba(255,255,255,.1)}
+/* Filters */
+.filters{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}
 .filter-select{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;transition:border .2s;flex-shrink:0;white-space:nowrap}
 .filter-select:focus{outline:none;border-color:var(--accent)}
 
 /* Cards */
-.card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);transition:all .2s;border:1px solid var(--border);cursor:pointer}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:8px;box-shadow:var(--shadow);transition:all .2s;border:1px solid var(--border)}
 .card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.dark .card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-.dark .card:hover{box-shadow:0 0 0 1px rgba(0,214,50,.15)}
 .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .card-title{font-size:15px;font-weight:600;flex:1}
 .card-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
@@ -75,26 +48,46 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 .card-actions button:hover{background:var(--bg2)}
 .past-event{opacity:.45}
 
-/* Pill Progress Bar */
-.pill-progress{margin-top:8px}
-.pill-stats{font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:500}
-.pill-bar{display:flex;gap:2px;flex:1;align-items:center}
-.pill{height:6px;border-radius:99px;flex:1;transition:all .3s;box-sizing:border-box}
-.pill.done{background:var(--accent);border:2px solid var(--accent);box-shadow:0 0 6px 1px rgba(0,214,50,.3)}
-.pill.current{background:transparent;border:2px solid var(--accent);-webkit-animation:pill-pulse 2s ease-in-out infinite;animation:pill-pulse 2s ease-in-out infinite}
-.pill.pending{background:transparent;border:2px solid var(--bg3)}
-.dark .pill.pending{border-color:rgba(255,255,255,.15);opacity:.4}
-@-webkit-keyframes pill-pulse{0%,100%{box-shadow:0 0 6px 2px rgba(0,214,50,.4),0 0 12px 4px rgba(0,214,50,.15);opacity:1}50%{box-shadow:0 0 10px 4px rgba(0,214,50,.6),0 0 20px 8px rgba(0,214,50,.25);opacity:.85}}
-@keyframes pill-pulse{0%,100%{box-shadow:0 0 6px 2px rgba(0,214,50,.4),0 0 12px 4px rgba(0,214,50,.15);opacity:1}50%{box-shadow:0 0 10px 4px rgba(0,214,50,.6),0 0 20px 8px rgba(0,214,50,.25);opacity:.85}}
-.pill-pct{font-size:11px;color:var(--text2);font-weight:700;margin-left:6px;white-space:nowrap}
-
 /* Section */
 .section-header{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
 .section-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
 
-/* Subtask toggle & list (on cards) */
+/* FAB */
+.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(0,212,50,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;z-index:50}
+.fab:hover{transform:scale(1.05);box-shadow:0 6px 24px rgba(0,212,50,.4)}
+.fab:active{transform:scale(.95)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:var(--modal-bg);z-index:100;display:none;align-items:flex-end;justify-content:center;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:15px;transition:border .2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:60px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg2);border-radius:12px}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--bg3);border:none;cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+.btn-row{display:flex;gap:8px;margin-top:20px}
+.btn{flex:1;padding:14px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--bg2);color:var(--text)}
+.btn-danger{background:var(--red);color:#fff}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
+
+/* Subtasks */
 .subtask-toggle{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;user-select:none}
 .subtask-toggle:hover{color:var(--accent2)}
+.subtask-progress{display:flex;align-items:center;gap:8px;margin-top:8px}
+.subtask-bar{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.subtask-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.subtask-count{font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap}
 .subtask-list{margin-top:8px;padding-left:4px;display:none}
 .subtask-list.open{display:block}
 .subtask-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;transition:background .15s}
@@ -121,68 +114,6 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 .child-add input:focus{outline:none;border-color:var(--accent)}
 .child-add button{padding:4px 8px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:600;cursor:pointer}
 
-/* FAB */
-.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 16px rgba(0,212,50,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;z-index:50}
-.fab:hover{transform:scale(1.05);box-shadow:0 6px 24px rgba(0,212,50,.4)}
-.fab:active{transform:scale(.95)}
-.dark .fab{-webkit-animation:fabGlow 3s ease-in-out infinite;animation:fabGlow 3s ease-in-out infinite}
-@-webkit-keyframes fabGlow{0%,100%{box-shadow:0 4px 16px rgba(0,212,50,.3)}50%{box-shadow:0 4px 24px rgba(0,212,50,.6),0 0 40px rgba(0,212,50,.2)}}
-@keyframes fabGlow{0%,100%{box-shadow:0 4px 16px rgba(0,212,50,.3)}50%{box-shadow:0 4px 24px rgba(0,212,50,.6),0 0 40px rgba(0,212,50,.2)}}
-
-/* Modal (edit form - bottom sheet) */
-.modal-overlay{position:fixed;inset:0;background:var(--modal-bg);z-index:100;display:none;align-items:flex-end;justify-content:center;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-.modal-overlay.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px;animation:slideUp .3s ease}
-.dark .modal{background:rgba(30,30,30,.95);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:15px;transition:border .2s;font-family:inherit}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
-.form-group textarea{resize:vertical;min-height:60px}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg2);border-radius:12px}
-.toggle{width:44px;height:26px;border-radius:13px;background:var(--bg3);border:none;cursor:pointer;position:relative;transition:background .2s}
-.toggle.on{background:var(--accent)}
-.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s}
-.toggle.on::after{transform:translateX(18px)}
-.btn-row{display:flex;gap:8px;margin-top:20px}
-.btn{flex:1;padding:14px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent2)}
-.btn-secondary{background:var(--bg2);color:var(--text)}
-.btn-danger{background:var(--red);color:#fff}
-.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
-
-/* Detail Modal (centred floating) */
-.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90;display:none;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.detail-overlay.open{display:flex}
-.detail-modal{background:var(--card);border-radius:20px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto;padding:24px;position:relative;-webkit-animation:detailIn .25s ease;animation:detailIn .25s ease}
-.dark .detail-modal{background:rgba(30,30,30,.92);border:1px solid rgba(255,255,255,.15);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-@-webkit-keyframes detailIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-@keyframes detailIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.detail-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px}
-.detail-close:hover{background:var(--bg2);color:var(--text)}
-.detail-title{font-size:20px;font-weight:700;margin-bottom:4px;padding-right:32px}
-.detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.detail-notes{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:16px}
-.detail-section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-/* Stepper subtasks */
-.stepper{padding-left:4px;margin-bottom:16px}
-.stepper-item{display:flex;align-items:flex-start;gap:10px;position:relative;padding-bottom:12px}
-.stepper-item:last-child{padding-bottom:0}
-.stepper-item:last-child .stepper-line{display:none}
-.stepper-circle{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;position:relative;z-index:1;background:var(--bg)}
-.dark .stepper-circle{background:var(--card)}
-.stepper-circle.done{background:var(--accent);border-color:var(--accent);color:#fff}
-.stepper-circle:hover{transform:scale(1.15);transition:transform .15s}
-.stepper-circle.current{border-color:var(--accent);-webkit-animation:pill-pulse 2s ease-in-out infinite;animation:pill-pulse 2s ease-in-out infinite}
-.stepper-line{position:absolute;left:8px;top:20px;bottom:0;width:2px;background:var(--border)}
-.stepper-text{font-size:14px;padding-top:1px;flex:1}
-.stepper-text.done-text{color:var(--text3);text-decoration:line-through}
-.stepper-check{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:2px}
-.detail-btn-row{display:flex;gap:8px;margin-top:16px}
-
 /* Export menu */
 .export-menu{position:absolute;right:0;top:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);padding:4px;z-index:60;min-width:160px;display:none}
 .export-menu.open{display:block}
@@ -196,29 +127,25 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 <body>
 <div class="container">
   <header>
-    <h1 id="greeting">Dashboard</h1>
+    <h1>Dashboard</h1>
     <div class="header-actions">
       <div class="conn-dot" id="connDot" title="Disconnected"></div>
-      <button class="icon-btn" onclick="refresh()" title="Refresh">&#x21bb;</button>
+      <button class="icon-btn" onclick="refresh()" title="Refresh">↻</button>
       <div class="rel">
-        <button class="icon-btn" onclick="toggleExport()" title="Export">&#x2913;</button>
+        <button class="icon-btn" onclick="toggleExport()" title="Export">⤓</button>
         <div class="export-menu" id="exportMenu">
           <button onclick="exportCSV('tasks')">Export Tasks CSV</button>
           <button onclick="exportCSV('events')">Export Events CSV</button>
         </div>
       </div>
-      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">&#x25D0;</button>
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">◐</button>
     </div>
   </header>
 
-  <div class="summary-bar" id="summaryBar"></div>
-
   <!-- Page Nav -->
-  <div class="page-tabs">
-    <a class="page-tab active" href="index.html">Tasks</a>
-    <a class="page-tab" href="documents.html">Docs</a>
-    <a class="page-tab" href="agents.html">Agents</a>
-    <a class="page-tab" href="history.html">History</a>
+  <div class="tabs" style="margin-bottom:12px">
+    <button class="tab active" onclick="window.location.href='index.html'">📋 Tasks</button>
+    <button class="tab" onclick="window.location.href='documents.html'">📁 Docs</button>
   </div>
 
   <!-- Task Tabs -->
@@ -228,37 +155,17 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
     <button class="tab" data-assignee="Xaden">Xaden<span class="badge" id="badgeXaden">0</span></button>
   </div>
 
-  <!-- Pill Filters -->
-  <div class="filters" id="filtersBar">
-    <button class="filter-pill active" data-filter="status" data-value="active">Active</button>
-    <button class="filter-pill" data-filter="status" data-value="">All</button>
-    <button class="filter-pill" data-filter="status" data-value="Not Started">Not Started</button>
-    <button class="filter-pill" data-filter="status" data-value="In Progress">In Progress</button>
-    <button class="filter-pill" data-filter="status" data-value="Done">Done</button>
-    <span class="filter-divider"></span>
-    <button class="filter-pill" data-filter="priority" data-value="" id="priorityPill">Priority: All</button>
-    <button class="filter-pill" data-filter="category" data-value="" id="categoryPill">Category: All</button>
-    <span class="filter-divider"></span>
-    <select class="filter-select" id="fSort">
-      <option value="priority-desc">Priority &#x2191;</option>
-      <option value="priority-asc">Priority &#x2193;</option>
-      <option value="due-asc">Due Date &#x2191;</option>
-      <option value="due-desc">Due Date &#x2193;</option>
-      <option value="title-asc">A &rarr; Z</option>
-      <option value="title-desc">Z &rarr; A</option>
-      <option value="newest">Newest</option>
-      <option value="oldest">Oldest</option>
-    </select>
+  <!-- Filters -->
+  <div class="filters">
+    <select class="filter-select" id="fStatus"><option value="active" selected>Active</option><option value="">All Status</option><option>Not Started</option><option>In Progress</option><option>Done</option></select>
+    <select class="filter-select" id="fPriority"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <select class="filter-select" id="fCategory"><option value="">All Categories</option><option>Work</option><option>Personal</option><option>Family</option><option>Health</option></select>
+    <select class="filter-select" id="fSort"><option value="priority-desc">↑ Priority</option><option value="priority-asc">↓ Priority</option><option value="due-asc">↑ Due Date</option><option value="due-desc">↓ Due Date</option><option value="title-asc">A → Z</option><option value="title-desc">Z → A</option><option value="newest">Newest</option><option value="oldest">Oldest</option></select>
   </div>
-
-  <!-- Hidden filter state holders -->
-  <input type="hidden" id="fStatus" value="active">
-  <input type="hidden" id="fPriority" value="">
-  <input type="hidden" id="fCategory" value="">
 
   <div id="taskList"></div>
 
-  <div class="section-header" id="eventsSection" style="display:none">
+  <div class="section-header">
     <span class="section-title">Events</span>
     <button class="icon-btn" onclick="openEventModal()" title="Add event" style="font-size:22px">+</button>
   </div>
@@ -266,21 +173,6 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 </div>
 
 <button class="fab" onclick="openTaskModal()" title="Add task">+</button>
-
-<!-- Detail Modal (centred floating) -->
-<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
-  <div class="detail-modal">
-    <button class="detail-close" onclick="closeDetail()">&times;</button>
-    <div class="detail-title" id="detailTitle"></div>
-    <div class="detail-tags" id="detailTags"></div>
-    <div class="detail-notes" id="detailNotes"></div>
-    <div id="detailSubtasks"></div>
-    <div class="detail-btn-row">
-      <button class="btn btn-secondary" onclick="detailEdit()">Edit</button>
-      <button class="btn btn-primary" id="detailNextBtn" onclick="detailNextStatus()">Next Status</button>
-    </div>
-  </div>
-</div>
 
 <!-- Task Modal -->
 <div class="modal-overlay" id="taskModal">
@@ -326,82 +218,20 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 <script>
 const API=`http://${window.location.hostname}:8085`;
 let tasks=[],events=[],activeAssignee='',connected=false;
-let detailTaskId=null;
 
 // Theme
-function initTheme(){
-  const s=localStorage.getItem('theme');
-  if(s==='light'){document.documentElement.classList.remove('dark')}
-  else if(s==='dark'){document.documentElement.classList.add('dark')}
-  else if(matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark')}
-  else{document.documentElement.classList.add('dark')}
-}
-function toggleTheme(){
-  document.documentElement.classList.toggle('dark');
-  localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light');
-}
+function initTheme(){const s=localStorage.getItem('theme');if(s)document.body.classList.toggle('dark',s==='dark');else if(matchMedia('(prefers-color-scheme:dark)').matches)document.body.classList.add('dark')}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light')}
 initTheme();
-
-// Greeting
-function updateGreeting(){
-  const h=new Date().getHours();
-  let g='Evening';
-  if(h>=5&&h<12)g='Morning';
-  else if(h>=12&&h<18)g='Afternoon';
-  document.getElementById('greeting').textContent=g+', Sean';
-}
-updateGreeting();
-
-// Summary bar
-function updateSummary(){
-  const active=tasks.filter(t=>t.status!=='Done').length;
-  const inProg=tasks.filter(t=>t.status==='In Progress').length;
-  document.getElementById('summaryBar').textContent=active+' tasks active \u00B7 '+inProg+' in progress';
-}
 
 // Connection
 async function checkConn(){try{const r=await fetch(`${API}/api/health`);connected=r.ok}catch{connected=false}document.getElementById('connDot').classList.toggle('ok',connected);document.getElementById('connDot').title=connected?'Connected':'Disconnected'}
 setInterval(checkConn,15000);
 
 // Data
-async function fetchTasks(){try{const r=await fetch(`${API}/api/tasks`);tasks=await r.json();renderTasks();updateSummary()}catch{}}
+async function fetchTasks(){try{const r=await fetch(`${API}/api/tasks`);tasks=await r.json();renderTasks()}catch{}}
 async function fetchEvents(){try{const r=await fetch(`${API}/api/events`);events=await r.json();renderEvents()}catch{}}
 function refresh(){fetchTasks();fetchEvents();checkConn()}
-
-// Pill filter logic
-const priorityValues=['','High','Medium','Low'];
-const priorityLabels=['Priority: All','Priority: High','Priority: Medium','Priority: Low'];
-let priorityIdx=0;
-const categoryValues=['','Work','Personal','Family','Health'];
-const categoryLabels=['Category: All','Category: Work','Category: Personal','Category: Family','Category: Health'];
-let categoryIdx=0;
-
-document.getElementById('filtersBar').addEventListener('click',function(e){
-  const pill=e.target.closest('.filter-pill');
-  if(!pill)return;
-  const filterType=pill.dataset.filter;
-  if(filterType==='status'){
-    // Deactivate other status pills, activate this one
-    document.querySelectorAll('.filter-pill[data-filter="status"]').forEach(p=>p.classList.remove('active'));
-    pill.classList.add('active');
-    document.getElementById('fStatus').value=pill.dataset.value;
-    renderTasks();
-  } else if(filterType==='priority'){
-    priorityIdx=(priorityIdx+1)%priorityValues.length;
-    pill.textContent=priorityLabels[priorityIdx];
-    pill.dataset.value=priorityValues[priorityIdx];
-    pill.classList.toggle('active',priorityIdx!==0);
-    document.getElementById('fPriority').value=priorityValues[priorityIdx];
-    renderTasks();
-  } else if(filterType==='category'){
-    categoryIdx=(categoryIdx+1)%categoryValues.length;
-    pill.textContent=categoryLabels[categoryIdx];
-    pill.dataset.value=categoryValues[categoryIdx];
-    pill.classList.toggle('active',categoryIdx!==0);
-    document.getElementById('fCategory').value=categoryValues[categoryIdx];
-    renderTasks();
-  }
-});
 
 // Render tasks
 function renderTasks(){
@@ -444,29 +274,11 @@ function renderTasks(){
     const doneCount=t.subtasksDone||0;
     const totalCount=t.subtasksTotal||0;
     const pct=totalCount?Math.round(doneCount/totalCount*100):0;
-
-    // Pill progress bar
-    let pillHtml='';
-    if(totalCount){
-      const statsHtml=`<div class="pill-stats">${doneCount} of ${totalCount} done \u00B7 ${pct}% complete</div>`;
-      // Build individual pills — done on left, current next, pending on right
-      let pills='';
-      for(let i=0;i<totalCount;i++){
-        if(i<doneCount){
-          pills+=`<div class="pill done"></div>`;
-        }else if(i===doneCount){
-          pills+=`<div class="pill current"></div>`;
-        }else{
-          pills+=`<div class="pill pending"></div>`;
-        }
-      }
-      pillHtml=`<div class="pill-progress">${statsHtml}<div class="pill-bar">${pills}<span class="pill-pct">${pct}%</span></div></div>`;
-    }
-
-    const toggleHtml=`<div class="subtask-toggle" onclick="event.stopPropagation();toggleSubtasks(${t.id})">${totalCount?'\u25B8':'\u002B'} Subtasks</div>`;
+    const subtaskHtml=totalCount?`<div class="subtask-progress"><div class="subtask-bar"><div class="subtask-bar-fill" style="width:${pct}%"></div></div><span class="subtask-count">${doneCount}/${totalCount}</span></div>`:'';
+    const toggleHtml=`<div class="subtask-toggle" onclick="event.stopPropagation();toggleSubtasks(${t.id})">${totalCount?'▸':'+'} Subtasks</div>`;
     const listHtml=`<div class="subtask-list" id="subs-${t.id}">${renderSubtasks(subs,t.id)}<div class="subtask-add"><input id="subInput-${t.id}" placeholder="Add subtask..." onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();addSub(${t.id})}"><button onclick="event.stopPropagation();addSub(${t.id})">Add</button></div></div>`;
     const isOpen=prevOpen.has(t.id)?' open':'';
-    return`<div class="card" onclick="openDetail(${t.id})"><div class="card-header"><span class="card-title">${esc(t.title)}</span></div><div class="card-meta"><span class="tag ${pc}">${t.priority}</span><span class="tag ${sc}">${t.status}</span><span class="tag">${t.category}</span>${due}${t.recurring!=='None'?`<span class="tag">${t.recurring}</span>`:''}</div>${t.notes?`<div class="card-notes">${esc(t.notes)}</div>`:''}${pillHtml}${toggleHtml}${listHtml.replace('subtask-list"',`subtask-list${isOpen}"`)}</div>`}).join('');
+    return`<div class="card" onclick="editTask(${t.id})"><div class="card-header"><span class="card-title">${esc(t.title)}</span><div class="card-actions"><button onclick="event.stopPropagation();quickStatus(${t.id},'${t.status}')" title="Toggle status">${t.status==='Done'?'✓':'○'}</button></div></div><div class="card-meta"><span class="tag ${pc}">${t.priority}</span><span class="tag ${sc}">${t.status}</span><span class="tag">${t.category}</span>${due}${t.recurring!=='None'?`<span class="tag">🔄 ${t.recurring}</span>`:''}</div>${t.notes?`<div class="card-notes">${esc(t.notes)}</div>`:''}${subtaskHtml}${toggleHtml}${listHtml.replace('subtask-list"',`subtask-list${isOpen}"`)}</div>`}).join('');
 }
 
 // Subtask functions
@@ -477,10 +289,10 @@ function renderSubtasks(subs,taskId){
   return subs.map(s=>{
     const hasChildren=(s.children&&s.children.length>0);
     const childOpen=openChildren.has(s.id);
-    const childToggle=`<span class="child-toggle" onclick="event.stopPropagation();toggleChildren(${s.id},${taskId})" title="${hasChildren?'Toggle sub-subtasks':'Add sub-subtask'}">${hasChildren?(childOpen?'\u25BE':'\u25B8'):'\u002B'}</span>`;
-    const childrenHtml=hasChildren?`<div class="subtask-children" id="children-${s.id}" style="display:${childOpen?'block':'none'}">${s.children.map(c=>`<div class="subtask-item"><input type="checkbox" ${c.done?'checked':''} onclick="event.stopPropagation();toggleSubDone(${c.id},${c.done?0:1},${taskId})"><span class="${c.done?'done':''}" onclick="event.stopPropagation();editSub(${c.id},${taskId})">${esc(c.title)}</span><button class="subtask-del" onclick="event.stopPropagation();deleteSub(${c.id},${taskId})" title="Delete">\u00D7</button></div>`).join('')}<div class="child-add"><input id="childInput-${s.id}" placeholder="Add sub-subtask..." onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();addChildSub(${s.id},${taskId})}"><button onclick="event.stopPropagation();addChildSub(${s.id},${taskId})">Add</button></div></div>`:'';
+    const childToggle=`<span class="child-toggle" onclick="event.stopPropagation();toggleChildren(${s.id},${taskId})" title="${hasChildren?'Toggle sub-subtasks':'Add sub-subtask'}">${hasChildren?(childOpen?'▾':'▸'):'+'}</span>`;
+    const childrenHtml=hasChildren?`<div class="subtask-children" id="children-${s.id}" style="display:${childOpen?'block':'none'}">${s.children.map(c=>`<div class="subtask-item"><input type="checkbox" ${c.done?'checked':''} onclick="event.stopPropagation();toggleSubDone(${c.id},${c.done?0:1},${taskId})"><span class="${c.done?'done':''}" onclick="event.stopPropagation();editSub(${c.id},${taskId})">${esc(c.title)}</span><button class="subtask-del" onclick="event.stopPropagation();deleteSub(${c.id},${taskId})" title="Delete">×</button></div>`).join('')}<div class="child-add"><input id="childInput-${s.id}" placeholder="Add sub-subtask..." onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();addChildSub(${s.id},${taskId})}"><button onclick="event.stopPropagation();addChildSub(${s.id},${taskId})">Add</button></div></div>`:'';
     const newChildHtml=!hasChildren&&childOpen?`<div class="subtask-children" id="children-${s.id}"><div class="child-add"><input id="childInput-${s.id}" placeholder="Add sub-subtask..." onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.stopPropagation();addChildSub(${s.id},${taskId})}"><button onclick="event.stopPropagation();addChildSub(${s.id},${taskId})">Add</button></div></div>`:'';
-    return`<div class="subtask-item"><input type="checkbox" ${s.done?'checked':''} onclick="event.stopPropagation();toggleSubDone(${s.id},${s.done?0:1},${taskId})"><span class="${s.done?'done':''}" onclick="event.stopPropagation();editSub(${s.id},${taskId})">${esc(s.title)}</span>${childToggle}<button class="subtask-del" onclick="event.stopPropagation();deleteSub(${s.id},${taskId})" title="Delete">\u00D7</button></div>${childrenHtml}${newChildHtml}`;
+    return`<div class="subtask-item"><input type="checkbox" ${s.done?'checked':''} onclick="event.stopPropagation();toggleSubDone(${s.id},${s.done?0:1},${taskId})"><span class="${s.done?'done':''}" onclick="event.stopPropagation();editSub(${s.id},${taskId})">${esc(s.title)}</span>${childToggle}<button class="subtask-del" onclick="event.stopPropagation();deleteSub(${s.id},${taskId})" title="Delete">×</button></div>${childrenHtml}${newChildHtml}`;
   }).join('');
 }
 
@@ -494,67 +306,7 @@ async function addChildSub(parentSubId,taskId){const inp=document.getElementById
 async function editSub(subId,taskId){const sub=findSubFlat(taskId,subId);if(!sub)return;const newTitle=prompt('Edit subtask:',sub.title);if(newTitle===null||!newTitle.trim())return;await fetch(`${API}/api/subtasks/${subId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:newTitle.trim()})});openSubs.add(taskId);await fetchTasks()}
 async function deleteSub(subId,taskId){await fetch(`${API}/api/subtasks/${subId}`,{method:'DELETE'});openSubs.add(taskId);await fetchTasks()}
 
-// Detail modal
-function openDetail(id){
-  const t=tasks.find(x=>x.id===id);
-  if(!t)return;
-  detailTaskId=id;
-  document.getElementById('detailTitle').textContent=t.title;
-  // Tags
-  const pc=t.priority==='High'?'high':t.priority==='Medium'?'medium':'low';
-  const sc=t.status==='Done'?'done':t.status==='In Progress'?'in-progress':'';
-  let tagsHtml=`<span class="tag ${pc}">${t.priority}</span><span class="tag ${sc}">${t.status}</span><span class="tag">${t.category}</span>`;
-  if(t.dueDate)tagsHtml+=`<span class="tag">${formatDate(t.dueDate)}</span>`;
-  if(t.recurring!=='None')tagsHtml+=`<span class="tag">${t.recurring}</span>`;
-  document.getElementById('detailTags').innerHTML=tagsHtml;
-  // Notes
-  document.getElementById('detailNotes').textContent=t.notes||'';
-  document.getElementById('detailNotes').style.display=t.notes?'':'none';
-  // Next status button
-  const next=t.status==='Not Started'?'In Progress':t.status==='In Progress'?'Done':'Not Started';
-  document.getElementById('detailNextBtn').textContent='Set '+next;
-  // Subtasks stepper
-  const flat=t.subtasksFlat||[];
-  let stepHtml='';
-  if(flat.length){
-    stepHtml=`<div class="detail-section-title">Subtasks</div><div class="stepper">`;
-    let foundCurrent=false;
-    flat.forEach((s,i)=>{
-      const isDone=s.done;
-      let circleClass='stepper-circle';
-      if(isDone){circleClass+=' done'}
-      else if(!foundCurrent){circleClass+=' current';foundCurrent=true}
-      const textClass=isDone?'stepper-text done-text':'stepper-text';
-      const checkMark=isDone?'\u2713':'';
-      stepHtml+=`<div class="stepper-item"><div class="${circleClass}" style="cursor:pointer" onclick="detailToggleSub(${s.id},${isDone?0:1})">${checkMark}</div><div class="stepper-line"></div><span class="${textClass}">${esc(s.title)}</span></div>`;
-    });
-    stepHtml+='</div>';
-  }
-  document.getElementById('detailSubtasks').innerHTML=stepHtml;
-  document.getElementById('detailOverlay').classList.add('open');
-}
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');detailTaskId=null}
-function detailEdit(){
-  closeDetail();
-  if(detailTaskId!==null)editTask(detailTaskId);
-}
-async function detailNextStatus(){
-  if(detailTaskId===null)return;
-  const t=tasks.find(x=>x.id===detailTaskId);
-  if(!t)return;
-  const next=t.status==='Not Started'?'In Progress':t.status==='In Progress'?'Done':'Not Started';
-  await fetch(`${API}/api/tasks/${detailTaskId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:next})});
-  await fetchTasks();
-  // Refresh detail
-  openDetail(detailTaskId);
-}
-async function detailToggleSub(subId,done){
-  await fetch(`${API}/api/subtasks/${subId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({done})});
-  await fetchTasks();
-  if(detailTaskId!==null)openDetail(detailTaskId);
-}
-
-// Quick status toggle (kept for backward compat but not shown on cards)
+// Quick status toggle
 async function quickStatus(id,current){
   const next=current==='Not Started'?'In Progress':current==='In Progress'?'Done':'Not Started';
   await fetch(`${API}/api/tasks/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:next})});
@@ -566,17 +318,15 @@ function renderEvents(){
   const today=new Date().toISOString().split('T')[0];
   const sorted=[...events].sort((a,b)=>a.date.localeCompare(b.date));
   const el=document.getElementById('eventList');
-  const section=document.getElementById('eventsSection');
-  if(!sorted.length){el.innerHTML='';section.style.display='none';return}
-  section.style.display='';
+  if(!sorted.length){el.innerHTML='<div class="empty">No events yet</div>';return}
   el.innerHTML=sorted.map(e=>{
     const past=e.date<today?'past-event':'';
-    return`<div class="card ${past}" onclick="editEvent(${e.id})"><div class="card-header"><span class="card-title">${esc(e.title)}</span><span class="tag">${formatDate(e.date)}</span></div><div class="card-meta"><span class="tag">${e.category}</span>${e.reminder?'<span class="tag">Reminder</span>':''}</div>${e.notes?`<div class="card-notes">${esc(e.notes)}</div>`:''}</div>`}).join('');
+    return`<div class="card ${past}" onclick="editEvent(${e.id})"><div class="card-header"><span class="card-title">${esc(e.title)}</span><span class="tag">${formatDate(e.date)}</span></div><div class="card-meta"><span class="tag">${e.category}</span>${e.reminder?'<span class="tag">🔔</span>':''}</div>${e.notes?`<div class="card-notes">${esc(e.notes)}</div>`:''}</div>`}).join('');
 }
 
 // Tabs
-document.getElementById('taskTabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(!t)return;document.querySelectorAll('#taskTabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeAssignee=t.dataset.assignee;renderTasks()});
-document.getElementById('fSort').onchange=renderTasks;
+document.getElementById('taskTabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(!t)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activeAssignee=t.dataset.assignee;renderTasks()});
+document.getElementById('fStatus').onchange=document.getElementById('fPriority').onchange=document.getElementById('fCategory').onchange=document.getElementById('fSort').onchange=renderTasks;
 
 // Task modal
 function openTaskModal(){document.getElementById('taskModalTitle').textContent='Add Task';document.getElementById('taskId').value='';document.getElementById('tTitle').value='';document.getElementById('tStatus').value='Not Started';document.getElementById('tPriority').value='Medium';document.getElementById('tCategory').value='Personal';document.getElementById('tAssignee').value='Sean';document.getElementById('tDue').value='';document.getElementById('tRecurring').value='None';document.getElementById('tNotes').value='';document.getElementById('taskDeleteBtn').style.display='none';document.getElementById('taskModal').classList.add('open')}

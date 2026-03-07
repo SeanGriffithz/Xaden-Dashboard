@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>History</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00D632">
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div id="greeting" style="font-size:14px;color:var(--text2);font-weight:500;margin-bottom:2px"></div>
+      <h1 style="margin:0">History</h1>
+    </div>
+    <div class="header-actions">
+      <div class="conn-dot" id="connDot" title="Disconnected"></div>
+      <button class="icon-btn" onclick="loadHistory()" title="Refresh">&#x21BB;</button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">&#x25D0;</button>
+    </div>
+  </header>
+
+  <!-- Page Nav -->
+  <div class="tabs" style="margin-bottom:12px">
+    <button class="tab" data-page="index.html" onclick="window.location.href='index.html'">Tasks</button>
+    <button class="tab" data-page="documents.html" onclick="window.location.href='documents.html'">Docs</button>
+    <button class="tab" data-page="agents.html" onclick="window.location.href='agents.html'">Agents</button>
+    <button class="tab" data-page="history.html" onclick="window.location.href='history.html'">History</button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search history..." autocomplete="off">
+  </div>
+
+  <!-- Topic filter pills -->
+  <div class="filters" id="topicFilters"></div>
+
+  <!-- History entries -->
+  <div id="historyList"></div>
+</div>
+
+<button class="fab" onclick="openModal()" title="Add entry">+</button>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-card" id="detailCard"></div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="entryModal">
+  <div class="modal">
+    <h2 id="modalTitle">Add History Entry</h2>
+    <input type="hidden" id="entryId">
+    <div class="form-group"><label>Date</label><input type="date" id="fDate"></div>
+    <div class="form-group"><label>Title</label><input id="fTitle" placeholder="Session summary..."></div>
+    <div class="form-group"><label>Topics (comma-separated)</label><input id="fTopics" placeholder="dashboard, jobello, work"></div>
+    <div class="form-group"><label>Decisions</label><textarea id="fDecisions" placeholder="Key decisions made..."></textarea></div>
+    <div class="form-group"><label>Work Done</label><textarea id="fWorkDone" placeholder="What was accomplished..."></textarea></div>
+    <div class="form-group"><label>Files Changed</label><textarea id="fFiles" placeholder="Files created or modified..."></textarea></div>
+    <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Any other context..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeEntryModal()">Cancel</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteEntry()">Delete</button>
+      <button class="btn btn-primary" onclick="saveEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+var historyData=[], activeTopic='All', searchTerm='';
+
+// Init
+updateGreeting('greeting');
+checkConnection('connDot');
+setInterval(function(){checkConnection('connDot')},15000);
+
+// Load data
+async function loadHistory(){
+  try{
+    var url=searchTerm?API+'/api/history/search?q='+encodeURIComponent(searchTerm):API+'/api/history';
+    var r=await fetch(url);
+    historyData=await r.json();
+    buildTopicFilters();
+    renderHistory();
+  }catch(e){console.error('Failed to load history',e)}
+}
+
+function buildTopicFilters(){
+  var allTopics=new Set();
+  historyData.forEach(function(e){
+    if(e.topics)(e.topics).split(',').forEach(function(t){var tr=t.trim();if(tr)allTopics.add(tr.charAt(0).toUpperCase()+tr.slice(1).toLowerCase())});
+  });
+  var sorted=Array.from(allTopics).sort();
+  var wrap=document.getElementById('topicFilters');
+  wrap.innerHTML='<button class="fpill'+(activeTopic==='All'?' active':'')+'" onclick="filterTopic(\'All\')">All</button>';
+  sorted.forEach(function(t){
+    wrap.innerHTML+='<button class="fpill'+(activeTopic===t?' active':'')+'" onclick="filterTopic(\''+t+'\')">'+t+'</button>';
+  });
+}
+
+function filterTopic(t){
+  activeTopic=t;
+  buildTopicFilters();
+  renderHistory();
+}
+
+function renderHistory(){
+  var list=document.getElementById('historyList');
+  var filtered=historyData;
+  if(activeTopic!=='All'){
+    filtered=filtered.filter(function(e){return e.topics&&e.topics.toLowerCase().split(',').map(function(s){return s.trim()}).indexOf(activeTopic.toLowerCase())>=0});
+  }
+  if(!filtered.length){list.innerHTML='<div class="empty">No history entries found</div>';return}
+  list.innerHTML=filtered.map(function(e){
+    var topics=(e.topics||'').split(',').filter(function(t){return t.trim()}).map(function(t){return '<span class="topic-pill">'+t.trim()+'</span>'}).join('');
+    var sections=[];
+    if(e.decisions)sections.push(makeSection('Decisions',e.decisions,e.id+'d'));
+    if(e.workDone)sections.push(makeSection('Work Done',e.workDone,e.id+'w'));
+    if(e.filesChanged)sections.push(makeSection('Files Changed',e.filesChanged,e.id+'f'));
+    if(e.notes)sections.push(makeSection('Notes',e.notes,e.id+'n'));
+    return '<div class="card" onclick="openDetail('+e.id+')" data-id="'+e.id+'"><div class="card-date">'+formatDate(e.date)+'</div><div class="card-title">'+esc(e.title)+'</div><div class="card-topics">'+topics+'</div>'+sections.join('')+'</div>';
+  }).join('');
+}
+
+function makeSection(label,content,uid){
+  return '<div class="card-section" onclick="event.stopPropagation()"><div class="card-section-header" onclick="toggleSection(\''+uid+'\')"><span class="card-section-arrow" id="arrow-'+uid+'">&#x25B6;</span> '+label+'</div><div class="card-section-body" id="body-'+uid+'">'+esc(content)+'</div></div>';
+}
+
+function toggleSection(uid){
+  document.getElementById('arrow-'+uid).classList.toggle('open');
+  document.getElementById('body-'+uid).classList.toggle('open');
+}
+
+// Detail overlay
+function openDetail(id){
+  var e=historyData.find(function(h){return h.id===id});
+  if(!e)return;
+  var topics=(e.topics||'').split(',').filter(function(t){return t.trim()}).map(function(t){return '<span class="topic-pill">'+t.trim()+'</span>'}).join('');
+  var sections=[];
+  if(e.decisions)sections.push('<div class="detail-section"><div class="detail-section-title">Decisions</div><div class="detail-section-body">'+esc(e.decisions)+'</div></div>');
+  if(e.workDone)sections.push('<div class="detail-section"><div class="detail-section-title">Work Done</div><div class="detail-section-body">'+esc(e.workDone)+'</div></div>');
+  if(e.filesChanged)sections.push('<div class="detail-section"><div class="detail-section-title">Files Changed</div><div class="detail-section-body">'+esc(e.filesChanged)+'</div></div>');
+  if(e.notes)sections.push('<div class="detail-section"><div class="detail-section-title">Notes</div><div class="detail-section-body">'+esc(e.notes)+'</div></div>');
+  document.getElementById('detailCard').innerHTML=
+    '<div class="detail-top"><h2>'+esc(e.title)+'</h2><button class="detail-x" onclick="closeDetail()">&#x2715;</button></div>'+
+    '<div class="detail-date">'+formatDate(e.date)+'</div>'+
+    '<div class="detail-topics">'+topics+'</div>'+
+    sections.join('')+
+    '<div class="detail-btns"><button class="btn btn-secondary" onclick="closeDetail()">Close</button><button class="btn btn-primary" onclick="closeDetail();editEntry('+e.id+')">Edit</button></div>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open')}
+
+// Modal (add/edit)
+var editingId=null;
+function openModal(id){
+  editingId=id||null;
+  document.getElementById('modalTitle').textContent=editingId?'Edit Entry':'Add History Entry';
+  document.getElementById('deleteBtn').style.display=editingId?'':'none';
+  if(editingId){
+    var e=historyData.find(function(h){return h.id===editingId});
+    if(e){
+      document.getElementById('fDate').value=e.date||'';
+      document.getElementById('fTitle').value=e.title||'';
+      document.getElementById('fTopics').value=e.topics||'';
+      document.getElementById('fDecisions').value=e.decisions||'';
+      document.getElementById('fWorkDone').value=e.workDone||'';
+      document.getElementById('fFiles').value=e.filesChanged||'';
+      document.getElementById('fNotes').value=e.notes||'';
+    }
+  }else{
+    document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
+    document.getElementById('fTitle').value='';
+    document.getElementById('fTopics').value='';
+    document.getElementById('fDecisions').value='';
+    document.getElementById('fWorkDone').value='';
+    document.getElementById('fFiles').value='';
+    document.getElementById('fNotes').value='';
+  }
+  document.getElementById('entryModal').classList.add('open');
+}
+
+function closeEntryModal(){document.getElementById('entryModal').classList.remove('open');editingId=null}
+function editEntry(id){openModal(id)}
+
+async function saveEntry(){
+  var body={
+    date:document.getElementById('fDate').value,
+    title:document.getElementById('fTitle').value,
+    topics:document.getElementById('fTopics').value,
+    decisions:document.getElementById('fDecisions').value,
+    workDone:document.getElementById('fWorkDone').value,
+    filesChanged:document.getElementById('fFiles').value,
+    notes:document.getElementById('fNotes').value
+  };
+  if(!body.title){alert('Title is required');return}
+  try{
+    if(editingId){
+      await fetch(API+'/api/history/'+editingId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      showToast('Entry updated','success');
+    }else{
+      await fetch(API+'/api/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      showToast('Entry added','success');
+    }
+    closeEntryModal();
+    loadHistory();
+  }catch(e){console.error('Save failed',e)}
+}
+
+async function deleteEntry(){
+  if(!editingId)return;
+  if(!confirm('Delete this entry?'))return;
+  try{
+    await fetch(API+'/api/history/'+editingId,{method:'DELETE'});
+    closeEntryModal();
+    loadHistory();
+    showToast('Entry deleted','info');
+  }catch(e){console.error('Delete failed',e)}
+}
+
+// Search with debounce
+var debounceTimer;
+document.getElementById('searchInput').addEventListener('input',function(){
+  clearTimeout(debounceTimer);
+  var self=this;
+  debounceTimer=setTimeout(function(){
+    searchTerm=self.value.trim();
+    loadHistory();
+  },300);
+});
+
+// Init
+loadHistory();
+</script>
+</body>
+</html>

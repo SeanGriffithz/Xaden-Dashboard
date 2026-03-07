@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Documents</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00D632">
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div id="greeting" style="font-size:14px;color:var(--text2);font-weight:500;margin-bottom:2px"></div>
+      <h1 style="margin:0">Documents</h1>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="loadDocs()" title="Refresh">&#x21BB;</button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">&#x25D0;</button>
+    </div>
+  </header>
+
+  <!-- Page Nav -->
+  <div class="tabs" style="margin-bottom:12px">
+    <button class="tab" data-page="index.html" onclick="window.location.href='index.html'">Tasks</button>
+    <button class="tab" data-page="documents.html" onclick="window.location.href='documents.html'">Docs</button>
+    <button class="tab" data-page="agents.html" onclick="window.location.href='agents.html'">Agents</button>
+    <button class="tab" data-page="history.html" onclick="window.location.href='history.html'">History</button>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="filters" id="filterPills"></div>
+
+  <!-- Document List -->
+  <div id="docList"></div>
+</div>
+
+<button class="fab" onclick="openModal()" title="Add document">+</button>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="docModal">
+  <div class="modal">
+    <h2 id="modalTitle">Add Document</h2>
+    <input type="hidden" id="docId">
+    <div class="form-group"><label>Title</label><input id="dTitle" placeholder="Document name"></div>
+    <div class="form-group"><label>Type</label><select id="dType"><option value="link">Link / Tool</option><option value="document">Document</option><option value="prototype">Prototype</option><option value="file">File</option></select></div>
+    <div class="form-group"><label>URL</label><input id="dUrl" placeholder="https://..."></div>
+    <div class="form-group"><label>Icon (emoji)</label><input id="dIcon" placeholder="&#x1F4C4;" maxlength="4"></div>
+    <div class="form-group"><label>Category</label><select id="dCategory">
+      <option>Tools</option>
+      <option>Prototypes</option>
+      <option>Work Documents</option>
+      <option>Reports</option>
+      <option>Brand Assets</option>
+      <option>Training</option>
+      <option>Other</option>
+    </select></div>
+    <div class="form-group"><label>Description</label><textarea id="dDesc" placeholder="Brief description..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeDocModal()">Cancel</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteDoc()">Delete</button>
+      <button class="btn btn-primary" onclick="saveDoc()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+var docs=[];
+var activeFilter='All';
+
+// Init
+updateGreeting('greeting');
+
+async function loadDocs(){
+  try{
+    var r=await fetch(API+'/api/documents');
+    docs=await r.json();
+    renderFilters();
+    renderDocs();
+  }catch(e){
+    document.getElementById('docList').innerHTML='<div class="empty">Failed to load documents</div>';
+  }
+}
+
+function renderFilters(){
+  var cats=['All'].concat([].concat(Array.from(new Set(docs.map(function(d){return d.category})))));
+  document.getElementById('filterPills').innerHTML=cats.map(function(c){
+    return '<button class="fpill'+(c===activeFilter?' active':'')+'" onclick="setFilter(\''+c+'\')">'+c+'</button>';
+  }).join('');
+}
+
+function setFilter(cat){
+  activeFilter=cat;
+  renderFilters();
+  renderDocs();
+}
+
+function renderDocs(){
+  var filtered=activeFilter==='All'?docs:docs.filter(function(d){return d.category===activeFilter});
+  if(!filtered.length){
+    document.getElementById('docList').innerHTML='<div class="empty">No documents yet. Tap + to add one.</div>';
+    return;
+  }
+  var groups={};
+  for(var i=0;i<filtered.length;i++){var d=filtered[i];(groups[d.category]=groups[d.category]||[]).push(d)}
+  var html='';
+  for(var cat in groups){
+    var items=groups[cat];
+    html+='<div class="category-header"><span class="category-title">'+esc(cat)+'</span><span class="category-count">'+items.length+'</span></div>';
+    html+='<div class="doc-grid">';
+    for(var j=0;j<items.length;j++){
+      var d=items[j];
+      var link=d.url?'onclick="window.open(\''+esc(d.url)+'\',\'_blank\')"':'onclick="editDoc('+d.id+')"';
+      var typeIcon={link:'\u2197',document:'\u2261',prototype:'\u25C7',file:'\u25AA'}[d.type]||'\u00B7';
+      html+='<div class="doc-card" '+link+'><div class="doc-icon">'+typeIcon+'</div><div class="doc-info"><div class="doc-title">'+esc(d.title)+'</div>'+(d.description?'<div class="doc-desc">'+esc(d.description)+'</div>':'')+'<div class="doc-meta">'+d.type+(d.createdAt?' \u00B7 '+new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'')+'</div></div><div class="doc-actions"><button onclick="event.stopPropagation();editDoc('+d.id+')" title="Edit">\u270E</button></div><span class="doc-arrow">\u203A</span></div>';
+    }
+    html+='</div>';
+  }
+  document.getElementById('docList').innerHTML=html;
+}
+
+function openModal(){
+  document.getElementById('docId').value='';
+  document.getElementById('dTitle').value='';
+  document.getElementById('dType').value='link';
+  document.getElementById('dUrl').value='';
+  document.getElementById('dIcon').value='\u{1F4C4}';
+  document.getElementById('dCategory').value='Tools';
+  document.getElementById('dDesc').value='';
+  document.getElementById('modalTitle').textContent='Add Document';
+  document.getElementById('deleteBtn').style.display='none';
+  document.getElementById('docModal').classList.add('open');
+}
+
+function editDoc(id){
+  var d=docs.find(function(x){return x.id===id});
+  if(!d)return;
+  document.getElementById('docId').value=d.id;
+  document.getElementById('dTitle').value=d.title||'';
+  document.getElementById('dType').value=d.type||'link';
+  document.getElementById('dUrl').value=d.url||'';
+  document.getElementById('dIcon').value=d.icon||'\u{1F4C4}';
+  document.getElementById('dCategory').value=d.category||'Tools';
+  document.getElementById('dDesc').value=d.description||'';
+  document.getElementById('modalTitle').textContent='Edit Document';
+  document.getElementById('deleteBtn').style.display='';
+  document.getElementById('docModal').classList.add('open');
+}
+
+function closeDocModal(){document.getElementById('docModal').classList.remove('open')}
+
+async function saveDoc(){
+  var id=document.getElementById('docId').value;
+  var body={
+    title:document.getElementById('dTitle').value.trim(),
+    type:document.getElementById('dType').value,
+    url:document.getElementById('dUrl').value.trim()||null,
+    icon:document.getElementById('dIcon').value.trim()||'\u{1F4C4}',
+    category:document.getElementById('dCategory').value,
+    description:document.getElementById('dDesc').value.trim()||null
+  };
+  if(!body.title)return alert('Title is required');
+  if(id){
+    await fetch(API+'/api/documents/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    showToast('Document updated','success');
+  }else{
+    await fetch(API+'/api/documents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    showToast('Document added','success');
+  }
+  closeDocModal();
+  loadDocs();
+}
+
+async function deleteDoc(){
+  var id=document.getElementById('docId').value;
+  if(!id||!confirm('Delete this document?'))return;
+  await fetch(API+'/api/documents/'+id,{method:'DELETE'});
+  closeDocModal();
+  loadDocs();
+  showToast('Document deleted','info');
+}
+
+// Init
+loadDocs();
+</script>
+</body>
+</html>

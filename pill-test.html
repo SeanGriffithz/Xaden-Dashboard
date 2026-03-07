@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pill Test</title>
+<style>
+body{background:#0a0a0a;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:20px}
+.card{background:#1a1a1a;border-radius:16px;padding:20px;max-width:400px;margin:20px auto}
+h3{margin:0 0 16px;font-size:16px}
+
+/* Step header */
+.step-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.step-label{font-size:12px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase}
+.step-pct{font-size:14px;font-weight:700;color:#00D632}
+
+/* Progress bar */
+.seg-bar{display:flex;flex-direction:row;gap:5px;align-items:center}
+.seg{height:8px;border-radius:99px;flex:1}
+
+/* Done: solid green */
+.seg.done{background:#00D632;box-shadow:0 0 6px rgba(0,214,50,.35)}
+
+/* Current: green outline, hollow, taller + wider */
+.seg.current{background:transparent;border:2px solid #00D632;height:12px;border-radius:99px;box-shadow:0 0 8px rgba(0,214,50,.2);flex:1.8}
+
+/* Pending: faint muted grey */
+.seg.pending{background:#2a2a2a}
+
+/* Labels */
+.label{font-size:11px;color:#666;margin-top:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h3>Reference: 3 of 5 (40%)</h3>
+  <div class="step-header">
+    <span class="step-label">Step 3 of 5</span>
+    <span class="step-pct">40% Complete</span>
+  </div>
+  <div class="seg-bar">
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg current"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>2 of 12 (17%) — Jobello</h3>
+  <div class="step-header">
+    <span class="step-label">2 of 12 done</span>
+    <span class="step-pct">17% Complete</span>
+  </div>
+  <div class="seg-bar">
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg current"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>0 of 15 (0%) — QuotePad</h3>
+  <div class="step-header">
+    <span class="step-label">0 of 15 done</span>
+    <span class="step-pct">0% Complete</span>
+  </div>
+  <div class="seg-bar">
+    <div class="seg current"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+    <div class="seg pending"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>16 of 17 (94%) — Twilio</h3>
+  <div class="step-header">
+    <span class="step-label">16 of 17 done</span>
+    <span class="step-pct">94% Complete</span>
+  </div>
+  <div class="seg-bar">
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg done"></div>
+    <div class="seg current"></div>
+  </div>
+</div>
+
+</body>
+</html>
