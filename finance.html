@@ -140,12 +140,10 @@ header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
   <div class="tabs">
     <button class="tab active" onclick="switchTab('monthly',this)">Monthly Bills</button>
     <button class="tab" onclick="switchTab('annual',this)">Annual Bills</button>
-    <button class="tab" onclick="switchTab('calendar',this)">Calendar</button>
   </div>
 
   <div id="view-monthly"></div>
   <div id="view-annual" style="display:none"></div>
-  <div id="view-calendar" style="display:none"></div>
 </div>
 
 <script>
@@ -242,44 +240,11 @@ function renderAnnual(){
   document.getElementById('view-annual').innerHTML = html;
 }
 
-// ─── CALENDAR VIEW ──────────────────────────────────────────────────────
-function renderCalendar(){
-  var now = new Date();
-  var html = '';
-
-  for(var m=0; m<12; m++){
-    var items = [];
-    MONTHLY.forEach(function(b){ items.push({day:b.day, name:b.name, amt:b.amt, catClass:b.catClass, cat:b.cat, annual:false}); });
-    ANNUAL.forEach(function(b){ if(b.month===m+1) items.push({day:b.day, name:b.name, amt:b.amt, catClass:b.catClass, cat:b.cat, annual:true}); });
-    items.sort(function(a,b){return a.day-b.day});
-
-    var monthTotal = items.reduce(function(s,i){return s+i.amt},0);
-    var isCurrentMonth = (m === now.getMonth());
-
-    html += '<div class="month-header"'+(isCurrentMonth?' style="color:var(--accent)"':'')+'>'+MONTHS_FULL[m]+
-      '<span class="month-total">'+fmtAmt(monthTotal)+'</span></div>';
-    html += '<div class="bill-card">';
-    items.forEach(function(b){
-      var badge = b.annual ? '<span class="annual-badge">Annual</span>' : '';
-      html += '<div class="bill-row">'+
-        '<div class="bill-date" style="font-size:11px">'+ordinal(b.day)+'</div>'+
-        '<div class="bill-info">'+
-          '<div class="bill-name">'+b.name+badge+'</div>'+
-          '<span class="cat-pill '+b.catClass+'">'+b.cat+'</span>'+
-        '</div>'+
-        '<div class="bill-amount">'+fmtAmt(b.amt)+'</div>'+
-      '</div>';
-    });
-    html += '</div>';
-  }
-  document.getElementById('view-calendar').innerHTML = html;
-}
-
 // ─── TAB SWITCH ─────────────────────────────────────────────────────────
 function switchTab(name, el){
   document.querySelectorAll('.tabs .tab').forEach(function(t){t.classList.remove('active')});
   el.classList.add('active');
-  ['monthly','annual','calendar'].forEach(function(v){
+  ['monthly','annual'].forEach(function(v){
     document.getElementById('view-'+v).style.display = v===name ? 'block' : 'none';
   });
 }
@@ -287,14 +252,6 @@ function switchTab(name, el){
 // ─── INIT ───────────────────────────────────────────────────────────────
 renderMonthly();
 renderAnnual();
-renderCalendar();
-
-// Scroll to current month in calendar
-setTimeout(function(){
-  var now = new Date();
-  var headers = document.querySelectorAll('#view-calendar .month-header');
-  if(headers[now.getMonth()]) headers[now.getMonth()].scrollIntoView({behavior:'smooth',block:'start'});
-},100);
 </script>
 </body>
 </html>
