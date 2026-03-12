@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Finance — Command Centre</title>
+<script>
+(function(){var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.remove('dark')}else if(t==='dark'||!t){document.documentElement.classList.add('dark')}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark')}})();
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fff;--bg2:#f5f5f5;--bg3:#e8e8e8;--text:#000;--text2:#666;--text3:#999;--border:#e0e0e0;--card:#fff;--shadow:0 1px 3px rgba(0,0,0,.08);--accent:#00D632;--red:#ff3b30;--amber:#ff9500;--blue:#0a84ff;--radius:16px}
+.dark{--bg:#050505;--bg2:#161616;--bg3:#252525;--text:#e8e8e8;--text2:#888;--text3:#555;--border:#2a2a2a;--card:#1c1c1e;--shadow:0 1px 3px rgba(255,255,255,.03)}
+html{background:var(--bg);min-height:100%;height:100%}
+html.dark{background:#050505}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.dark body{background:linear-gradient(180deg,#111 0%,#0a0a0a 30%,#050505 100%)}
+.container{max-width:800px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;gap:12px}
+header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
+
+/* Nav */
+.page-tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:16px}
+.dark .page-tabs{background:rgba(255,255,255,.06)}
+.page-tab{flex:1;padding:10px 8px;border:none;background:none;border-radius:10px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.page-tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+
+/* Summary Cards */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.sum-card .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+.sum-card .amount{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.sum-card.income .amount{color:var(--accent)}
+.sum-card.outgoing .amount{color:var(--red)}
+.sum-card.left .amount{color:var(--accent)}
+.sum-card.equiv .amount{font-size:16px;color:var(--amber)}
+.left-subtext{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:14px}
+.dark .tabs{background:rgba(255,255,255,.06)}
+.tab{flex:1;padding:9px 8px;border:none;background:none;border-radius:10px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center}
+.tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+
+/* Bill Row */
+.bill-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
+.bill-row{display:flex;align-items:center;padding:13px 16px;gap:12px;border-bottom:1px solid var(--border)}
+.bill-row:last-child{border-bottom:none}
+.bill-date{width:28px;height:28px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);flex-shrink:0}
+.bill-info{flex:1;min-width:0}
+.bill-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bill-cat{font-size:12px;color:var(--text3);margin-top:1px}
+.bill-amount{font-size:15px;font-weight:700;color:var(--red);flex-shrink:0}
+.bill-amount.income{color:var(--accent)}
+
+/* Month section header */
+.month-header{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:8px 4px 4px;margin-top:8px}
+.month-header:first-child{margin-top:0}
+.month-total{float:right;color:var(--text2);font-size:12px;font-weight:600}
+
+/* Category pills */
+.cat-pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;margin-top:2px}
+.cat-house{background:rgba(10,132,255,.12);color:#0a84ff}
+.cat-car{background:rgba(255,159,10,.12);color:#ff9f0a}
+.cat-sub{background:rgba(175,82,222,.12);color:#af52de}
+.cat-insurance{background:rgba(255,69,58,.12);color:#ff453a}
+.cat-utilities{background:rgba(255,214,10,.12);color:#b38a00}
+.dark .cat-utilities{color:#ffd60a}
+.cat-internet{background:rgba(10,132,255,.12);color:#0a84ff}
+.cat-phone{background:rgba(52,199,89,.12);color:#34c759}
+.cat-charity{background:rgba(255,149,0,.12);color:#ff9500}
+
+/* Annual badge */
+.annual-badge{background:rgba(255,149,0,.12);color:#ff9500;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px}
+
+/* Progress bar for budget */
+.budget-bar-wrap{margin-bottom:16px}
+.budget-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px}
+.budget-bar-bg{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.budget-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),#00b82b);transition:width .5s}
+.budget-bar-fill.warn{background:linear-gradient(90deg,var(--amber),#e67e00)}
+.budget-bar-fill.danger{background:linear-gradient(90deg,var(--red),#cc2200)}
+
+/* Empty */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>💷 Finance</h1>
+  </header>
+
+  <!-- Nav -->
+  <div class="page-tabs">
+    <a class="page-tab" href="index.html">Tasks</a>
+    <a class="page-tab" href="documents.html">Docs</a>
+    <a class="page-tab" href="agents.html">Agents</a>
+    <a class="page-tab" href="history.html">History</a>
+    <a class="page-tab active" href="finance.html">Finance</a>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="sum-card income">
+      <div class="label">Monthly Income</div>
+      <div class="amount" id="incomeAmt">£3,200</div>
+    </div>
+    <div class="sum-card left">
+      <div class="label">Left Over</div>
+      <div class="amount" id="leftAmt"></div>
+      <div class="left-subtext" id="leftPct"></div>
+    </div>
+    <div class="sum-card outgoing">
+      <div class="label">Monthly Bills</div>
+      <div class="amount" id="monthlyAmt"></div>
+    </div>
+    <div class="sum-card equiv">
+      <div class="label">Annual (monthly equiv)</div>
+      <div class="amount" id="annualEquiv"></div>
+    </div>
+  </div>
+
+  <!-- Budget Bar -->
+  <div class="budget-bar-wrap">
+    <div class="budget-bar-label">
+      <span>Outgoings vs Income</span>
+      <span id="budgetPct"></span>
+    </div>
+    <div class="budget-bar-bg">
+      <div class="budget-bar-fill" id="budgetBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('monthly',this)">Monthly Bills</button>
+    <button class="tab" onclick="switchTab('annual',this)">Annual Bills</button>
+    <button class="tab" onclick="switchTab('calendar',this)">Calendar</button>
+  </div>
+
+  <div id="view-monthly"></div>
+  <div id="view-annual" style="display:none"></div>
+  <div id="view-calendar" style="display:none"></div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────
+const INCOME = 3200;
+
+const MONTHLY = [
+  {day:6,  name:'Mortgage',                    cat:'House',       catClass:'cat-house',     amt:700},
+  {day:6,  name:'Gas & Electric',              cat:'Utilities',   catClass:'cat-utilities', amt:200},
+  {day:6,  name:'Tesla',                       cat:'Car',         catClass:'cat-car',       amt:480},
+  {day:6,  name:'House Insurance',             cat:'Insurance',   catClass:'cat-insurance', amt:55},
+  {day:6,  name:'Life & Critical Illness',     cat:'Insurance',   catClass:'cat-insurance', amt:55},
+  {day:6,  name:'Spotify',                     cat:'Subscription',catClass:'cat-sub',       amt:15},
+  {day:6,  name:'Netflix',                     cat:'Subscription',catClass:'cat-sub',       amt:15},
+  {day:7,  name:'iCloud',                      cat:'Subscription',catClass:'cat-sub',       amt:10},
+  {day:8,  name:'TV Licence',                  cat:'Subscription',catClass:'cat-sub',       amt:15},
+  {day:11, name:'The Grand Charity',           cat:'Charity',     catClass:'cat-charity',   amt:15},
+  {day:11, name:'Car Insurance',               cat:'Insurance',   catClass:'cat-insurance', amt:100},
+  {day:12, name:'Tesla Premium',               cat:'Car',         catClass:'cat-car',       amt:10},
+  {day:15, name:'Council Tax',                 cat:'House',       catClass:'cat-house',     amt:225},
+  {day:15, name:'Virgin Media',                cat:'Internet',    catClass:'cat-internet',  amt:40},
+  {day:18, name:'AppleCare+',                  cat:'Phone',       catClass:'cat-phone',     amt:20},
+  {day:23, name:'EE',                          cat:'Phone',       catClass:'cat-phone',     amt:35},
+  {day:24, name:'Website',                     cat:'Subscription',catClass:'cat-sub',       amt:20},
+];
+
+const ANNUAL = [
+  {month:1,  day:1,  name:'Gnoll Lodge',           cat:'Charity',     catClass:'cat-charity',   amt:180},
+  {month:3,  day:1,  name:'Platinum Amex Card',     cat:'Finance',     catClass:'cat-insurance', amt:650},
+  {month:6,  day:1,  name:'Proton',                 cat:'Subscription',catClass:'cat-sub',       amt:120},
+  {month:6,  day:21, name:'Apple Developer',        cat:'Subscription',catClass:'cat-sub',       amt:80},
+  {month:7,  day:6,  name:'Google One',             cat:'Subscription',catClass:'cat-sub',       amt:90},
+  {month:9,  day:1,  name:'Vehicle Tax',            cat:'Car',         catClass:'cat-car',       amt:195},
+  {month:10, day:6,  name:'BA Amex Card',           cat:'Finance',     catClass:'cat-insurance', amt:350},
+];
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ─── CALCULATIONS ───────────────────────────────────────────────────────
+const monthlyTotal = MONTHLY.reduce((s,b)=>s+b.amt,0);
+const annualTotal  = ANNUAL.reduce((s,b)=>s+b.amt,0);
+const annualEquiv  = annualTotal/12;
+const totalEquiv   = monthlyTotal + annualEquiv;
+const leftOver     = INCOME - totalEquiv;
+const pct          = Math.round((totalEquiv/INCOME)*100);
+
+// ─── POPULATE SUMMARY ───────────────────────────────────────────────────
+document.getElementById('monthlyAmt').textContent  = '£'+monthlyTotal.toLocaleString('en-GB',{minimumFractionDigits:0});
+document.getElementById('annualEquiv').textContent = '£'+annualEquiv.toFixed(2).replace(/\.00$/,'');
+document.getElementById('leftAmt').textContent     = '£'+Math.round(leftOver).toLocaleString('en-GB');
+document.getElementById('leftPct').textContent     = Math.round((leftOver/INCOME)*100)+'% of income';
+document.getElementById('budgetPct').textContent   = pct+'% of income';
+
+var bar = document.getElementById('budgetBar');
+bar.style.width = Math.min(pct,100)+'%';
+if(pct>85) bar.classList.add('danger');
+else if(pct>70) bar.classList.add('warn');
+
+// ─── HELPERS ────────────────────────────────────────────────────────────
+function fmtAmt(n){return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:0})}
+function ordinal(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+
+function billRow(b, annual){
+  var badge = annual ? '<span class="annual-badge">Annual</span>' : '';
+  var dateLabel = annual ? (ordinal(b.day)+' '+MONTHS[b.month-1]) : ordinal(b.day);
+  return '<div class="bill-row">'+
+    '<div class="bill-date">'+dateLabel+'</div>'+
+    '<div class="bill-info">'+
+      '<div class="bill-name">'+b.name+badge+'</div>'+
+      '<span class="cat-pill '+b.catClass+'">'+b.cat+'</span>'+
+    '</div>'+
+    '<div class="bill-amount">'+fmtAmt(b.amt)+'</div>'+
+  '</div>';
+}
+
+// ─── MONTHLY VIEW ───────────────────────────────────────────────────────
+function renderMonthly(){
+  var sorted = MONTHLY.slice().sort((a,b)=>a.day-b.day);
+  var html = '<div class="month-header">Monthly Bills <span class="month-total">'+fmtAmt(monthlyTotal)+'/month</span></div>';
+  html += '<div class="bill-card">';
+  sorted.forEach(function(b){ html += billRow(b, false); });
+  html += '</div>';
+  document.getElementById('view-monthly').innerHTML = html;
+}
+
+// ─── ANNUAL VIEW ────────────────────────────────────────────────────────
+function renderAnnual(){
+  var sorted = ANNUAL.slice().sort((a,b)=> a.month!==b.month ? a.month-b.month : a.day-b.day);
+  var html = '<div class="month-header">Annual Bills <span class="month-total">£'+annualTotal.toLocaleString('en-GB')+'/year · '+fmtAmt(Math.round(annualEquiv))+'/month equiv</span></div>';
+  html += '<div class="bill-card">';
+  sorted.forEach(function(b){ html += billRow(b, true); });
+  html += '</div>';
+  document.getElementById('view-annual').innerHTML = html;
+}
+
+// ─── CALENDAR VIEW ──────────────────────────────────────────────────────
+function renderCalendar(){
+  var now = new Date();
+  var html = '';
+
+  for(var m=0; m<12; m++){
+    var items = [];
+    MONTHLY.forEach(function(b){ items.push({day:b.day, name:b.name, amt:b.amt, catClass:b.catClass, cat:b.cat, annual:false}); });
+    ANNUAL.forEach(function(b){ if(b.month===m+1) items.push({day:b.day, name:b.name, amt:b.amt, catClass:b.catClass, cat:b.cat, annual:true}); });
+    items.sort(function(a,b){return a.day-b.day});
+
+    var monthTotal = items.reduce(function(s,i){return s+i.amt},0);
+    var isCurrentMonth = (m === now.getMonth());
+
+    html += '<div class="month-header"'+(isCurrentMonth?' style="color:var(--accent)"':'')+'>'+MONTHS_FULL[m]+
+      '<span class="month-total">'+fmtAmt(monthTotal)+'</span></div>';
+    html += '<div class="bill-card">';
+    items.forEach(function(b){
+      var badge = b.annual ? '<span class="annual-badge">Annual</span>' : '';
+      html += '<div class="bill-row">'+
+        '<div class="bill-date" style="font-size:11px">'+ordinal(b.day)+'</div>'+
+        '<div class="bill-info">'+
+          '<div class="bill-name">'+b.name+badge+'</div>'+
+          '<span class="cat-pill '+b.catClass+'">'+b.cat+'</span>'+
+        '</div>'+
+        '<div class="bill-amount">'+fmtAmt(b.amt)+'</div>'+
+      '</div>';
+    });
+    html += '</div>';
+  }
+  document.getElementById('view-calendar').innerHTML = html;
+}
+
+// ─── TAB SWITCH ─────────────────────────────────────────────────────────
+function switchTab(name, el){
+  document.querySelectorAll('.tabs .tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  ['monthly','annual','calendar'].forEach(function(v){
+    document.getElementById('view-'+v).style.display = v===name ? 'block' : 'none';
+  });
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────
+renderMonthly();
+renderAnnual();
+renderCalendar();
+
+// Scroll to current month in calendar
+setTimeout(function(){
+  var now = new Date();
+  var headers = document.querySelectorAll('#view-calendar .month-header');
+  if(headers[now.getMonth()]) headers[now.getMonth()].scrollIntoView({behavior:'smooth',block:'start'});
+},100);
+</script>
+</body>
+</html>
