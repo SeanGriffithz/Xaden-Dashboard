@@ -10,347 +10,201 @@
 <script>(function(){var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}})();</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#fff;--bg2:#f5f5f5;--bg3:#e8e8e8;--text:#000;--text2:#666;--text3:#999;--border:#e0e0e0;--card:#fff;--shadow:0 1px 3px rgba(0,0,0,.08);--accent:#00D632;--red:#ff3b30;--amber:#ff9500;--blue:#0a84ff;--radius:16px}
+:root{--bg:#fff;--bg2:#f5f5f5;--bg3:#e8e8e8;--text:#000;--text2:#666;--text3:#999;--border:#e0e0e0;--card:#fff;--shadow:0 1px 3px rgba(0,0,0,.08);--accent:#00D632;--red:#ff3b30;--amber:#ff9500;--blue:#0a84ff;--purple:#af52de;--radius:16px}
 .dark{--bg:#050505;--bg2:#161616;--bg3:#252525;--text:#e8e8e8;--text2:#888;--text3:#555;--border:#2a2a2a;--card:#1c1c1e;--shadow:0 1px 3px rgba(255,255,255,.03)}
-html{background:var(--bg);min-height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-.dark body{background:linear-gradient(180deg,#111 0%,#050505 100%)}
+html,body{background:var(--bg);min-height:100vh}
+.dark body{background:linear-gradient(180deg,#111 0%,#0a0a0a 30%,#050505 100%)}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
 .container{max-width:800px;margin:0 auto;padding:16px}
-header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 12px}
+header{padding:20px 0 12px;display:flex;align-items:center;justify-content:space-between}
 header h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
 
 /* Nav */
 .page-tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:16px;overflow-x:auto}
 .dark .page-tabs{background:rgba(255,255,255,.06)}
-.page-tab{flex:1;padding:10px 6px;border:none;background:none;border-radius:10px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:52px}
+.page-tab{flex:1;min-width:fit-content;padding:9px 8px;border:none;background:none;border-radius:10px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;white-space:nowrap}
 .page-tab.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
 
 /* Summary */
-.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-.sum-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-.sum-card .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:5px}
-.sum-card .value{font-size:22px;font-weight:700;letter-spacing:-.5px}
-.sum-card.total .value{color:var(--accent)}
-.sum-card.inprog .value{color:var(--amber)}
-.sum-card.done .value{color:var(--accent)}
-.sum-card.jobs .value{color:var(--blue)}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center}
+.sum-card .label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:4px}
+.sum-card .val{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.sum-card.total .val{color:var(--amber)}
+.sum-card.done .val{color:var(--accent)}
+.sum-card.progress .val{color:var(--blue)}
+.sum-card.jobs .val{color:var(--text)}
 
 /* Filters */
-.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.filter-btn{padding:7px 14px;border:1px solid var(--border);background:var(--card);border-radius:20px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s}
-.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.filter-pill{padding:7px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;color:var(--text2);background:var(--card);cursor:pointer;transition:all .2s}
+.filter-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* Add button */
-.add-btn{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px;width:100%;transition:opacity .2s}
-.add-btn:active{opacity:.8}
-
-/* Job Card */
-.job-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
-.job-card:active{border-color:var(--accent)}
-.job-header{display:flex;align-items:center;padding:14px 16px;gap:12px}
+/* Job Cards */
+.job-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:all .2s}
+.job-header{display:flex;align-items:center;padding:14px 16px;gap:12px;cursor:pointer}
 .job-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.job-info{flex:1;min-width:0}
-.job-name{font-size:15px;font-weight:700;margin-bottom:2px}
-.job-contractor{font-size:12px;color:var(--text2)}
+.job-main{flex:1;min-width:0}
+.job-title{font-size:15px;font-weight:700}
+.job-sub{font-size:12px;color:var(--text3);margin-top:2px}
 .job-right{text-align:right;flex-shrink:0}
-.job-cost{font-size:16px;font-weight:700;color:var(--accent)}
-.status-pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:4px}
-.s-notstarted{background:rgba(255,59,48,.15);color:#ff3b30}
-.s-inprogress{background:rgba(255,149,0,.15);color:#ff9500}
-.s-complete{background:rgba(0,214,50,.15);color:#00d632}
-.s-onhold{background:rgba(99,99,102,.15);color:#9999a0}
+.job-cost{font-size:16px;font-weight:700;color:var(--amber)}
+.badges{display:flex;gap:6px;justify-content:flex-end;margin-top:4px}
 
-.priority-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
-.p-high{background:#ff3b30}
-.p-medium{background:#ff9500}
-.p-low{background:#0a84ff}
+/* Status badges */
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.badge-not-started{background:rgba(142,142,147,.15);color:#8e8e93}
+.badge-in-progress{background:rgba(255,149,0,.15);color:#ff9500}
+.badge-complete{background:rgba(0,214,50,.15);color:#00D632}
+.badge-on-hold{background:rgba(99,99,102,.15);color:#636366}
+.badge-high{background:rgba(255,69,58,.15);color:#ff453a}
+.badge-medium{background:rgba(255,159,10,.15);color:#ff9f0a}
+.badge-low{background:rgba(50,215,75,.15);color:#32d74b}
 
-/* Expanded detail */
-.job-detail{display:none;padding:0 16px 14px;border-top:1px solid var(--border)}
+/* Cat icons */
+.ci-carpenter{background:rgba(255,159,10,.15)}
+.ci-plumber{background:rgba(10,132,255,.15)}
+.ci-electrician{background:rgba(255,214,10,.15)}
+.ci-landscaping{background:rgba(50,215,75,.15)}
+.ci-builder{background:rgba(255,69,58,.15)}
+.ci-decorator{background:rgba(175,82,222,.15)}
+.ci-groundwork{background:rgba(142,142,147,.15)}
+.ci-tiler{background:rgba(10,132,255,.15)}
+.ci-other{background:rgba(99,99,102,.15)}
+
+/* Detail panel */
+.job-detail{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
 .job-detail.open{display:block}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.detail-item .dl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.detail-item .dl{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);letter-spacing:.4px;margin-bottom:3px}
 .detail-item .dv{font-size:13px;font-weight:600;color:var(--text)}
-.cost-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
-.cost-row:last-child{border-bottom:none;font-weight:700;font-size:14px;padding-top:8px}
-.cost-row span:last-child{color:var(--accent)}
+.detail-item .dv.green{color:var(--accent)}
+.detail-item .dv.amber{color:var(--amber)}
+.costs-row{display:flex;gap:8px;margin-top:10px}
+.cost-box{flex:1;background:var(--bg2);border-radius:10px;padding:10px;text-align:center}
+.cost-box .cl{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.cost-box .cv{font-size:15px;font-weight:700}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:flex-end;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto}
-.modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
-.form-group{margin-bottom:12px}
-.form-group label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.4px}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);outline:none;font-family:inherit}
-.form-group textarea{height:70px;resize:none}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.modal-actions{display:flex;gap:10px;margin-top:16px}
-.btn-save{flex:1;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}
-.btn-cancel{flex:1;background:var(--bg3);color:var(--text);border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer}
-.btn-delete{background:var(--red);color:#fff;border:none;border-radius:12px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer}
+/* Empty */
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}
 </style>
 </head>
 <body>
 <div class="container">
-  <header><h1>Renovations</h1></header>
+  <header><h1>🏠 Renovations</h1></header>
 
-  <!-- Nav -->
   <div class="page-tabs">
     <a class="page-tab" href="index.html">Tasks</a>
     <a class="page-tab" href="documents.html">Docs</a>
     <a class="page-tab" href="agents.html">Agents</a>
     <a class="page-tab" href="history.html">History</a>
     <a class="page-tab" href="finance.html">Finance</a>
-    <a class="page-tab active" href="renovations.html">Reno</a>
+    <a class="page-tab active" href="renovations.html">Renos</a>
   </div>
 
-  <!-- Summary -->
   <div class="summary-grid">
-    <div class="sum-card jobs"><div class="label">Total Jobs</div><div class="value" id="totalJobs">0</div></div>
-    <div class="sum-card total"><div class="label">Total Cost</div><div class="value" id="totalCost">£0</div></div>
-    <div class="sum-card inprog"><div class="label">In Progress</div><div class="value" id="inProg">0</div></div>
-    <div class="sum-card done"><div class="label">Complete</div><div class="value" id="doneCount">0</div></div>
+    <div class="sum-card jobs"><div class="label">Total Jobs</div><div class="val" id="totalJobs">0</div></div>
+    <div class="sum-card progress"><div class="label">In Progress</div><div class="val" id="inProgress">0</div></div>
+    <div class="sum-card done"><div class="label">Complete</div><div class="val" id="complete">0</div></div>
+    <div class="sum-card total"><div class="label">Total Cost</div><div class="val" id="totalCost">£0</div></div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters" id="filterBar">
-    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-    <button class="filter-btn" onclick="setFilter('Not Started',this)">Not Started</button>
-    <button class="filter-btn" onclick="setFilter('In Progress',this)">In Progress</button>
-    <button class="filter-btn" onclick="setFilter('Complete',this)">Complete</button>
-    <button class="filter-btn" onclick="setFilter('On Hold',this)">On Hold</button>
+  <div class="filters">
+    <button class="filter-pill active" onclick="filter('all',this)">All</button>
+    <button class="filter-pill" onclick="filter('Not Started',this)">Not Started</button>
+    <button class="filter-pill" onclick="filter('In Progress',this)">In Progress</button>
+    <button class="filter-pill" onclick="filter('Complete',this)">Complete</button>
+    <button class="filter-pill" onclick="filter('On Hold',this)">On Hold</button>
   </div>
-
-  <button class="add-btn" onclick="openModal()">+ Add Job</button>
 
   <div id="jobList"></div>
 </div>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal">
-    <h2 id="modalTitle">Add Job</h2>
-    <input type="hidden" id="editIdx" value="-1">
-    <div class="form-group"><label>Task / Job</label><input type="text" id="fTask" placeholder="e.g. Downstairs Door"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Category</label>
-        <select id="fCat">
-          <option value="">Select...</option>
-          <option>Carpenter</option><option>Plumber</option><option>Electrician</option>
-          <option>Landscaping</option><option>Builder</option><option>Decorator</option>
-          <option>Groundwork</option><option>Roofing</option><option>Other</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Priority</label>
-        <select id="fPriority">
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-          <option value="Low">Low</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Contractor</label><input type="text" id="fContractor" placeholder="Company name"></div>
-      <div class="form-group"><label>Contact Name</label><input type="text" id="fName" placeholder="Person's name"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Phone</label><input type="tel" id="fPhone" placeholder="07..."></div>
-      <div class="form-group"><label>Email</label><input type="email" id="fEmail" placeholder="email@..."></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Quote Date</label><input type="date" id="fQuoteDate"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="fStatus">
-          <option value="Not Started">Not Started</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Complete">Complete</option>
-          <option value="On Hold">On Hold</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Start Date</label><input type="date" id="fStart"></div>
-      <div class="form-group"><label>Completion Date</label><input type="date" id="fEnd"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Labour (£)</label><input type="number" id="fLabour" placeholder="0.00" step="0.01"></div>
-      <div class="form-group"><label>Materials (£)</label><input type="number" id="fMaterials" placeholder="0.00" step="0.01"></div>
-    </div>
-    <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Any notes..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-delete" id="deleteBtn" style="display:none" onclick="deleteJob()">Delete</button>
-      <button class="btn-save" onclick="saveJob()">Save</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const STORAGE_KEY = 'reno_jobs_v1';
-let jobs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-let currentFilter = 'all';
+const JOBS = [
+  {task:"Downstairs Door",cat:"Carpenter",contractor:"A1 Carpentry",name:"",phone:"",email:"",quoteDate:"",startDate:"",endDate:"",labour:90,materials:140,status:"Not Started",priority:"Medium",notes:""},
+];
 
-// Pre-populate if empty
-if(jobs.length === 0){
-  jobs = [{
-    task:'Downstairs Door',cat:'Carpenter',contractor:'A1 Carpentry',name:'',phone:'',email:'',
-    quoteDate:'',startDate:'',endDate:'',labour:90,materials:140,status:'Not Started',priority:'Medium',notes:''
-  }];
-  save();
+const CAT_ICONS = {
+  Carpenter:"🪵",Plumber:"🔧",Electrician:"⚡",Landscaping:"🌿",
+  Builder:"🧱",Decorator:"🎨",Groundwork:"⛏",Tiler:"🪟",Other:"🔨"
+};
+const CAT_CI = {
+  Carpenter:"ci-carpenter",Plumber:"ci-plumber",Electrician:"ci-electrician",
+  Landscaping:"ci-landscaping",Builder:"ci-builder",Decorator:"ci-decorator",
+  Groundwork:"ci-groundwork",Tiler:"ci-tiler",Other:"ci-other"
+};
+
+function fmtAmt(n){return n?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:0}):'—'}
+function statusBadge(s){
+  const map={'Not Started':'badge-not-started','In Progress':'badge-in-progress','Complete':'badge-complete','On Hold':'badge-on-hold'};
+  return `<span class="badge ${map[s]||'badge-not-started'}">${s}</span>`;
+}
+function priorityBadge(p){
+  const map={'High':'badge-high','Medium':'badge-medium','Low':'badge-low'};
+  return `<span class="badge ${map[p]||'badge-medium'}">${p}</span>`;
 }
 
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)); }
-
-function fmtAmt(n){ return n ? '£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:0}) : '—'; }
-function fmtDate(d){ if(!d) return '—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
-
-const STATUS_CLASS = {'Not Started':'s-notstarted','In Progress':'s-inprogress','Complete':'s-complete','On Hold':'s-onhold'};
-const STATUS_ICON  = {'Not Started':'🔴','In Progress':'🟡','Complete':'🟢','On Hold':'⚫'};
-const CAT_ICON     = {'Carpenter':'🪚','Plumber':'🔧','Electrician':'⚡','Landscaping':'🌿','Builder':'🧱','Decorator':'🎨','Groundwork':'⛏','Roofing':'🏠','Other':'🔨'};
-const PRIORITY_CLASS = {'High':'p-high','Medium':'p-medium','Low':'p-low'};
-
-function render(){
-  var filtered = currentFilter === 'all' ? jobs : jobs.filter(j=>j.status===currentFilter);
-  var totalCost = jobs.reduce((s,j)=>s+(Number(j.labour)||0)+(Number(j.materials)||0),0);
-  var inProg = jobs.filter(j=>j.status==='In Progress').length;
-  var done = jobs.filter(j=>j.status==='Complete').length;
-
-  document.getElementById('totalJobs').textContent = jobs.length;
-  document.getElementById('totalCost').textContent = fmtAmt(totalCost);
-  document.getElementById('inProg').textContent = inProg;
-  document.getElementById('doneCount').textContent = done;
-
-  var html = '';
-  if(filtered.length === 0){
-    html = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:14px">No jobs yet — tap + Add Job to get started</div>';
-  } else {
-    filtered.forEach(function(j, idx){
-      var realIdx = jobs.indexOf(j);
-      var total = (Number(j.labour)||0) + (Number(j.materials)||0);
-      var icon = CAT_ICON[j.cat] || '🔨';
-      html += '<div class="job-card" onclick="toggleDetail('+realIdx+')" id="card-'+realIdx+'">'+
-        '<div class="job-header">'+
-          '<div class="job-icon" style="background:var(--bg2)">'+icon+'</div>'+
-          '<div class="job-info">'+
-            '<div class="job-name">'+j.task+'</div>'+
-            '<div class="job-contractor">'+
-              '<span class="priority-dot '+PRIORITY_CLASS[j.priority||"Medium"]+'"></span>'+
-              (j.contractor || 'No contractor')+(j.cat?' · '+j.cat:'')+
-            '</div>'+
-          '</div>'+
-          '<div class="job-right">'+
-            '<div class="job-cost">'+(total>0?fmtAmt(total):'TBC')+'</div>'+
-            '<div class="status-pill '+STATUS_CLASS[j.status]+'">'+j.status+'</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="job-detail" id="detail-'+realIdx+'">'+
-          '<div class="detail-grid">'+
-            (j.name?'<div class="detail-item"><div class="dl">Contact</div><div class="dv">'+j.name+'</div></div>':'')+
-            (j.phone?'<div class="detail-item"><div class="dl">Phone</div><div class="dv"><a href="tel:'+j.phone+'" style="color:var(--blue)">'+j.phone+'</a></div></div>':'')+
-            (j.email?'<div class="detail-item"><div class="dl">Email</div><div class="dv" style="font-size:11px">'+j.email+'</div></div>':'')+
-            (j.quoteDate?'<div class="detail-item"><div class="dl">Quoted</div><div class="dv">'+fmtDate(j.quoteDate)+'</div></div>':'')+
-            (j.startDate?'<div class="detail-item"><div class="dl">Start</div><div class="dv">'+fmtDate(j.startDate)+'</div></div>':'')+
-            (j.endDate?'<div class="detail-item"><div class="dl">Complete By</div><div class="dv">'+fmtDate(j.endDate)+'</div></div>':'')+
-          '</div>'+
-          (total>0?
-          '<div style="margin-top:10px">'+
-            '<div class="cost-row"><span>Labour</span><span>'+fmtAmt(j.labour||0)+'</span></div>'+
-            '<div class="cost-row"><span>Materials</span><span>'+fmtAmt(j.materials||0)+'</span></div>'+
-            '<div class="cost-row"><span>Total</span><span>'+fmtAmt(total)+'</span></div>'+
-          '</div>':'')+
-          (j.notes?'<div style="margin-top:10px;font-size:13px;color:var(--text2)">'+j.notes+'</div>':'')+
-          '<button onclick="event.stopPropagation();openModal('+realIdx+')" style="margin-top:12px;width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer">Edit Job</button>'+
-        '</div>'+
-      '</div>';
-    });
-  }
-  document.getElementById('jobList').innerHTML = html;
-}
-
-function toggleDetail(idx){
-  var d = document.getElementById('detail-'+idx);
-  if(d) d.classList.toggle('open');
-}
-
-function setFilter(f, el){
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+let activeFilter = 'all';
+function filter(val, el){
+  activeFilter = val;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   render();
 }
 
-function openModal(idx){
-  var overlay = document.getElementById('modalOverlay');
-  overlay.classList.add('open');
-  var isEdit = idx !== undefined && idx >= 0;
-  document.getElementById('modalTitle').textContent = isEdit ? 'Edit Job' : 'Add Job';
-  document.getElementById('editIdx').value = isEdit ? idx : -1;
-  document.getElementById('deleteBtn').style.display = isEdit ? 'block' : 'none';
-  if(isEdit){
-    var j = jobs[idx];
-    document.getElementById('fTask').value = j.task||'';
-    document.getElementById('fCat').value = j.cat||'';
-    document.getElementById('fPriority').value = j.priority||'Medium';
-    document.getElementById('fContractor').value = j.contractor||'';
-    document.getElementById('fName').value = j.name||'';
-    document.getElementById('fPhone').value = j.phone||'';
-    document.getElementById('fEmail').value = j.email||'';
-    document.getElementById('fQuoteDate').value = j.quoteDate||'';
-    document.getElementById('fStatus').value = j.status||'Not Started';
-    document.getElementById('fStart').value = j.startDate||'';
-    document.getElementById('fEnd').value = j.endDate||'';
-    document.getElementById('fLabour').value = j.labour||'';
-    document.getElementById('fMaterials').value = j.materials||'';
-    document.getElementById('fNotes').value = j.notes||'';
-  } else {
-    document.getElementById('fTask').value='';document.getElementById('fCat').value='';
-    document.getElementById('fPriority').value='Medium';document.getElementById('fContractor').value='';
-    document.getElementById('fName').value='';document.getElementById('fPhone').value='';
-    document.getElementById('fEmail').value='';document.getElementById('fQuoteDate').value='';
-    document.getElementById('fStatus').value='Not Started';document.getElementById('fStart').value='';
-    document.getElementById('fEnd').value='';document.getElementById('fLabour').value='';
-    document.getElementById('fMaterials').value='';document.getElementById('fNotes').value='';
-  }
+function render(){
+  const list = document.getElementById('jobList');
+  const filtered = activeFilter==='all' ? JOBS : JOBS.filter(j=>j.status===activeFilter);
+
+  // Summary
+  document.getElementById('totalJobs').textContent = JOBS.length;
+  document.getElementById('inProgress').textContent = JOBS.filter(j=>j.status==='In Progress').length;
+  document.getElementById('complete').textContent = JOBS.filter(j=>j.status==='Complete').length;
+  const grand = JOBS.reduce((s,j)=>s+(j.labour||0)+(j.materials||0),0);
+  document.getElementById('totalCost').textContent = fmtAmt(grand);
+
+  if(!filtered.length){list.innerHTML='<div class="empty">No jobs found</div>';return;}
+
+  list.innerHTML = filtered.map((j,i)=>{
+    const total = (j.labour||0)+(j.materials||0);
+    const icon = CAT_ICONS[j.cat]||'🔨';
+    const ci = CAT_CI[j.cat]||'ci-other';
+    return `<div class="job-card" id="card${i}">
+      <div class="job-header" onclick="toggle(${i})">
+        <div class="job-icon ${ci}">${icon}</div>
+        <div class="job-main">
+          <div class="job-title">${j.task}</div>
+          <div class="job-sub">${j.cat}${j.contractor?' · '+j.contractor:''}</div>
+        </div>
+        <div class="job-right">
+          <div class="job-cost">${total?fmtAmt(total):'TBC'}</div>
+          <div class="badges">${statusBadge(j.status)}${priorityBadge(j.priority)}</div>
+        </div>
+      </div>
+      <div class="job-detail" id="detail${i}">
+        <div class="costs-row">
+          <div class="cost-box"><div class="cl">Labour</div><div class="cv" style="color:var(--blue)">${fmtAmt(j.labour)}</div></div>
+          <div class="cost-box"><div class="cl">Materials</div><div class="cv" style="color:var(--purple)">${fmtAmt(j.materials)}</div></div>
+          <div class="cost-box"><div class="cl">Total</div><div class="cv" style="color:var(--amber)">${fmtAmt(total)||'TBC'}</div></div>
+        </div>
+        <div class="detail-grid">
+          ${j.name?`<div class="detail-item"><div class="dl">Contact</div><div class="dv">${j.name}</div></div>`:''}
+          ${j.phone?`<div class="detail-item"><div class="dl">Phone</div><div class="dv">${j.phone}</div></div>`:''}
+          ${j.email?`<div class="detail-item"><div class="dl">Email</div><div class="dv">${j.email}</div></div>`:''}
+          ${j.quoteDate?`<div class="detail-item"><div class="dl">Quote Date</div><div class="dv">${j.quoteDate}</div></div>`:''}
+          ${j.startDate?`<div class="detail-item"><div class="dl">Start Date</div><div class="dv">${j.startDate}</div></div>`:''}
+          ${j.endDate?`<div class="detail-item"><div class="dl">Completion</div><div class="dv green">${j.endDate}</div></div>`:''}
+          ${j.notes?`<div class="detail-item" style="grid-column:1/-1"><div class="dl">Notes</div><div class="dv">${j.notes}</div></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function closeModal(e){
-  if(!e || e.target===document.getElementById('modalOverlay')){
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
-}
-
-function saveJob(){
-  var idx = parseInt(document.getElementById('editIdx').value);
-  var job = {
-    task:document.getElementById('fTask').value,
-    cat:document.getElementById('fCat').value,
-    priority:document.getElementById('fPriority').value,
-    contractor:document.getElementById('fContractor').value,
-    name:document.getElementById('fName').value,
-    phone:document.getElementById('fPhone').value,
-    email:document.getElementById('fEmail').value,
-    quoteDate:document.getElementById('fQuoteDate').value,
-    status:document.getElementById('fStatus').value,
-    startDate:document.getElementById('fStart').value,
-    endDate:document.getElementById('fEnd').value,
-    labour:parseFloat(document.getElementById('fLabour').value)||0,
-    materials:parseFloat(document.getElementById('fMaterials').value)||0,
-    notes:document.getElementById('fNotes').value,
-  };
-  if(!job.task){alert('Please enter a task name');return;}
-  if(idx >= 0){ jobs[idx] = job; } else { jobs.push(job); }
-  save(); render();
-  document.getElementById('modalOverlay').classList.remove('open');
-}
-
-function deleteJob(){
-  var idx = parseInt(document.getElementById('editIdx').value);
-  if(idx >= 0 && confirm('Delete this job?')){
-    jobs.splice(idx,1);
-    save(); render();
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
+function toggle(i){
+  const d = document.getElementById(`detail${i}`);
+  d.classList.toggle('open');
 }
 
 render();
